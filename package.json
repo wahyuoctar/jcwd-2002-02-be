@@ -1,0 +1,29 @@
+{
+  "name": "pharmacy-be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mychaelson/pharmacy-be.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mychaelson/pharmacy-be/issues"
+  },
+  "homepage": "https://github.com/Mychaelson/pharmacy-be#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "moment": "^2.29.3",
+    "nanoid": "^4.0.0"
+  }
+}
