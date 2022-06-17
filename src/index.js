@@ -1,16 +1,28 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const fs = require("fs");
+const moment = require("moment");
+const app = express();
 
 dotenv.config();
 
-const PORT = process.env.PORT;
+const { sequelize } = require("./lib/sequelize");
+sequelize.sync({ alter: true });
 
-const app = express();
+const PORT = 2000;
 
 app.use(cors());
 app.use(express.json());
 
-app.listen(() => {
+app.use((req, res, next) => {
+  const loggingFormat = `${req.method} ${req.path} ${moment().format("LLL")}`;
+
+  fs.appendFileSync(`${__dirname}/../.log`, loggingFormat + "\n");
+
+  next();
+});
+
+app.listen(PORT, () => {
   console.log("Listening in Port: ", PORT);
 });
