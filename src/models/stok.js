@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const Stok = (sequelize) => {
-  return sequelize.define("stok", {
+  return sequelize.define("stock", {
     exp_date: {
       type: DataTypes.DATE,
       allowNull: false,

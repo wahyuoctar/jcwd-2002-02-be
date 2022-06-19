@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const DaftarTransaksi = (sequelize) => {
-  return sequelize.define("Daftar_transaksi", {
+  return sequelize.define("transaction_list", {
     total_price: {
       type: DataTypes.INTEGER,
       allowNull: false,

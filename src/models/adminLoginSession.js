@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const AdminLoginSession = (sequelize) => {
-  return sequelize.define("Admin_login_session", {
+  return sequelize.define("admin_login_session", {
     token: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const PurchaseOrder = (sequelize) => {
-  return sequelize.define("Purchase_order", {
+  return sequelize.define("purchase_order", {
     amount: {
       type: DataTypes.INTEGER,
       allowNull: false,

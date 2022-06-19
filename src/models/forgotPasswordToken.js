@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const ForgotPasswordToken = (sequelize) => {
-  return sequelize.define("Forgot_password_token", {
+  return sequelize.define("forgot_password_token", {
     token: {
       type: DataTypes.STRING,
       allowNull: false,

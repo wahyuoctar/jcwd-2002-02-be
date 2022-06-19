@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const Alamat = (sequelize) => {
-  return sequelize.define("Alamat", {
+  return sequelize.define("Address", {
     label_alamat: {
       type: DataTypes.STRING,
       allowNull: false,

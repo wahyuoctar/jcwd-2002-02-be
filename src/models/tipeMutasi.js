@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const TipeMutasi = (sequelize) => {
-  return sequelize.define("Tipe_mutasi", {
+  return sequelize.define("mutation_type", {
     tipe: {
       type: DataTypes.STRING,
     },

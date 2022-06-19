@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const KategoriProduk = (sequelize) => {
-  return sequelize.define("Kategori_produk", {
+  return sequelize.define("product_category", {
     kategori: {
       type: DataTypes.STRING,
       allowNull: false,

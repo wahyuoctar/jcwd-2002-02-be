@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const MetodePembayaran = (sequelize) => {
-  return sequelize.define("Metode_pembayaran", {
+  return sequelize.define("payment_method", {
     nama_metode: {
       type: DataTypes.STRING,
     },

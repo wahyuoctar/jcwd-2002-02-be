@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const BuktiPembayaran = (sequelize) => {
-  return sequelize.define("Bukti_pembayaran", {
+  return sequelize.define("proof_of_payment", {
     bukti_transfer: {
       type: DataTypes.STRING,
     },
