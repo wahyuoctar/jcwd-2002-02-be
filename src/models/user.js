@@ -18,6 +18,12 @@ const User = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    gender: {
+      type: DataTypes.STRING,
+    },
+    DOB: {
+      type: DataTypes.DATE,
+    },
     photo_profile: {
       type: DataTypes.STRING,
     },
