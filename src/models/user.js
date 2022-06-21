@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const User = (sequelize) => {
-  return sequelize.define("User", {
+  return sequelize.define("user", {
     nama: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -29,6 +29,7 @@ const User = (sequelize) => {
     },
     is_verified: {
       type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   });
 };

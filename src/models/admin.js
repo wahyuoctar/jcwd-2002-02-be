@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const Admin = (sequelize) => {
-  return sequelize.define("Admin", {
+  return sequelize.define("admin", {
     nama: {
       type: DataTypes.STRING,
       allowNull: false,

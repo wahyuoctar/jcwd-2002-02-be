@@ -23,6 +23,10 @@ app.use((req, res, next) => {
   next();
 });
 
+const { authRouter } = require("./router");
+
+app.use("/auth", authRouter);
+
 app.listen(PORT, () => {
   console.log("Listening in Port: ", PORT);
 });

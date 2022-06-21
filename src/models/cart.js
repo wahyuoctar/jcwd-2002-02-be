@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const Cart = (sequelize) => {
-  return sequelize.define("Cart", {
+  return sequelize.define("cart", {
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,

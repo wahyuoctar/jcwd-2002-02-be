@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 
 const Produk = (sequelize) => {
   // blom mskin image untuk produk dalam bentuk array
-  return sequelize.define("Product", {
+  return sequelize.define("product", {
     nama_produk: {
       type: DataTypes.STRING,
       allowNull: false,

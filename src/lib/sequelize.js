@@ -7,6 +7,7 @@ const sequelize = new Sequelize({
   database: mySqlConfig.MYSQL_DB_NAME,
   port: 3306,
   dialect: "mysql",
+  logging: false,
 });
 
 // call all the models
@@ -99,4 +100,24 @@ Stok.belongsTo(DaftarTransaksi);
 
 module.exports = {
   sequelize,
+  AccountVerificationToken,
+  Admin,
+  AdminLoginSession,
+  Alamat,
+  BuktiPembayaran,
+  Cart,
+  DaftarTransaksi,
+  DetailTransaksi,
+  ForgotPasswordToken,
+  KategoriProduk,
+  MetodePembayaran,
+  MutasiStok,
+  Produk,
+  PurchaseOrder,
+  StatusTransaksi,
+  Stok,
+  StokStatus,
+  TipeMutasi,
+  User,
+  UserLoginSession,
 };
