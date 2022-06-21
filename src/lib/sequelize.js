@@ -35,8 +35,8 @@ const MutasiStok = require("../models/mutasiStok")(sequelize);
 const TipeMutasi = require("../models/tipeMutasi")(sequelize);
 
 // defind the relationship of the model
-Admin.hasMany(AdminLoginSession);
-AdminLoginSession.belongsTo(Admin);
+Admin.hasMany(AdminLoginSession, { foreignKey: "admin_id" });
+AdminLoginSession.belongsTo(Admin, { foreignKey: "admin_id" });
 
 User.hasMany(UserLoginSession);
 UserLoginSession.belongsTo(User);
