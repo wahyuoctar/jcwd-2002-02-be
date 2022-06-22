@@ -99,5 +99,25 @@ DaftarTransaksi.hasMany(Stok);
 Stok.belongsTo(DaftarTransaksi);
 
 module.exports = {
-  sequelize, Produk, Stok, DetailTransaksi, BuktiPembayaran, MetodePembayaran,  StokStatus, MutasiStok, TipeMutasi, DaftarTransaksi, StatusTransaksi, Admin, AdminLoginSession, User, UserLoginSession, AccountVerificationToken, ForgotPasswordToken, Alamat, Cart, PurchaseOrder, KategoriProduk 
+  sequelize,
+  AccountVerificationToken,
+  Admin,
+  AdminLoginSession,
+  Alamat,
+  BuktiPembayaran,
+  Cart,
+  DaftarTransaksi,
+  DetailTransaksi,
+  ForgotPasswordToken,
+  KategoriProduk,
+  MetodePembayaran,
+  MutasiStok,
+  Produk,
+  PurchaseOrder,
+  StatusTransaksi,
+  Stok,
+  StokStatus,
+  TipeMutasi,
+  User,
+  UserLoginSession,
 };

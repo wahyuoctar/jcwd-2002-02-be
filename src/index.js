@@ -25,8 +25,8 @@ app.use((req, res, next) => {
 
 const { authRoutes, productRoutes } = require("./routes");
 
-app.use("/auth", authRoutes)
-app.use("/product", productRoutes)
+app.use("/auth", authRoutes);
+app.use("/product", productRoutes);
 
 app.listen(PORT, () => {
   console.log("Listening in Port: ", PORT);
