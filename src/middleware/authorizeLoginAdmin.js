@@ -1,11 +1,12 @@
 const { Op } = require("sequelize");
-const { UserLoginSession } = require("../lib/sequelize");
+const { AdminLoginSession } = require("../lib/sequelize");
 const moment = require("moment");
 
-const authorizedLoginUser = async (req, res, next) => {
+const authorizedLoginAdmin = async (req, res, next) => {
   try {
     const token = req.headers.authorization;
-    const validateToken = await UserLoginSession.findOne({
+    // AdminLoginSession
+    const validateToken = await AdminLoginSession.findOne({
       where: {
         token,
         is_valid: true,
@@ -20,8 +21,10 @@ const authorizedLoginUser = async (req, res, next) => {
         message: "Token is not valid",
       });
     }
-    req.token = { token: validateToken.token, id: validateToken.id };
-    req.user = { id: validateToken.userId };
+    // req.adminToken
+    req.adminToken = { token: validateToken.token, id: validateToken.id };
+    // req.admin
+    req.admin = { id: validateToken.admin_id };
 
     next();
   } catch (err) {
@@ -32,4 +35,4 @@ const authorizedLoginUser = async (req, res, next) => {
   }
 };
 
-module.exports = { authorizedLoginUser };
+module.exports = { authorizedLoginAdmin };

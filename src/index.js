@@ -25,9 +25,10 @@ app.use((req, res, next) => {
 
 const { authRoutes, productRoutes, userRoutes } = require("./routes");
 
+app.use("/avatar", express.static(`${__dirname}/public/avatar`));
 app.use("/auth", authRoutes);
 app.use("/product", productRoutes);
-app.use("/user", userRoutes)
+app.use("/user", userRoutes);
 
 app.listen(PORT, () => {
   console.log("Listening in Port: ", PORT);

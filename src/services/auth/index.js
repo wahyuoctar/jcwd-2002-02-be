@@ -13,10 +13,12 @@ const moment = require("moment");
 const fs = require("fs");
 const mustache = require("mustache");
 const bcrypt = require("bcrypt");
+// const { generateToken } = require("../../lib/jwt");
 
 class AuthService extends Service {
   static registerUser = async (username, email, name, password) => {
     try {
+      const hashedPassword = bcrypt.hashSync(password, 5);
       const isUsernameOrEmailTaken = await User.findOne({
         where: {
           [Op.or]: [{ username }, { email }],
@@ -29,8 +31,6 @@ class AuthService extends Service {
           message: "Username or email has been taken!",
         });
       }
-
-      const hashedPassword = bcrypt.hashSync(password, 5);
 
       const registerUser = await User.create({
         username,
@@ -68,7 +68,7 @@ class AuthService extends Service {
       return this.handleSuccess({
         statusCode: 201,
         message:
-          "Account Registered, please check your email to verify your account!",
+          "User Registered, please check your email to verify your account!",
         data: registerUser,
       });
     } catch (err) {
@@ -159,15 +159,49 @@ class AuthService extends Service {
         valid_until: moment().add(1, "day"),
       });
 
-      findUser.last_login = moment();
-      findUser.save();
-
       return this.handleSuccess({
         statusCode: 200,
         message: "Welcome",
         data: {
           user: findUser,
           token: sessionToken,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        statusCode: 500,
+        message: "Server error!",
+      });
+    }
+  };
+
+  static keepLoginAdmin = async (token, admin) => {
+    try {
+      const renewedToken = nanoid(64);
+
+      const findUser = await Admin.findByPk(admin.id);
+
+      delete findUser.dataValues.password;
+
+      await AdminLoginSession.update(
+        {
+          token: renewedToken,
+          valid_until: moment().add(1, "day"),
+        },
+        {
+          where: {
+            id: token.id,
+          },
+        }
+      );
+
+      return this.handleSuccess({
+        statusCode: 200,
+        message: "Renewed user token",
+        data: {
+          user: findUser,
+          token: renewedToken,
         },
       });
     } catch (err) {
@@ -216,102 +250,48 @@ class AuthService extends Service {
     }
   };
 
-  static verifyUser = async (token) => {
+  static editAvatarUser = async (id, file) => {
     try {
-      const verifyToken = await AccountVerificationToken.findOne({
+      const findUser = await User.findOne({
         where: {
-          token,
-          is_valid: true,
-          valid_until: {
-            [Op.gt]: moment().utc(),
-          },
+          id,
         },
       });
-
-      if (!verifyToken) {
+      if (!findUser) {
         return this.handleError({
-          message: "Token is not valid!",
-          statusCode: 401,
+          statusCode: 400,
+          message: "No user found!",
         });
       }
+      const uploadFileDomain = process.env.UPLOAD_FILE_DOMAIN;
+      const filePath = "avatar";
+      const { filename } = file;
 
-      await User.update(
-        { is_verified: true },
+      const newAvatar = `${uploadFileDomain}/${filePath}/${filename}`;
+
+      const updatedAvatar = await User.update(
+        {
+          photo_profile: newAvatar,
+        },
         {
           where: {
-            id: verifyToken.userId,
+            id,
           },
         }
       );
 
-      await AccountVerificationToken.update(
-        { is_valid: false },
-        {
-          where: {
-            userId: verifyToken.userId,
-          },
-        }
-      );
-
-      return this.handleRedirect({
-        url: `http://localhost:3000/verifikasi-berhasil?referral=${token}`,
-      });
-    } catch (err) {
-      return this.handleError({
-        message: "Server Error!",
-        statusCode: 500,
-      });
-    }
-  };
-
-  static resendVerificationToken = async (req) => {
-    try {
-      const userId = req.token.id;
-
-      const findUser = await User.findByPk(userId);
-
-      if (findUser.is_verified) {
-        return this.handleError({
-          message: "Your account has been verified",
-          statusCode: "400",
-        });
-      }
-
-      const verifyAccountToken = nanoid(40);
-
-      await AccountVerificationToken.create({
-        token: verifyAccountToken,
-        is_valid: true,
-        valid_until: moment().add(1, "hour"),
-        userId: findUser.id,
-      });
-
-      const verifyUserLink = `http://localhost:2000/auth/verify/${verifyAccountToken}`;
-
-      const emailTemplate = fs
-        .readFileSync(__dirname + "/../../templates/verifyAccount.html")
-        .toString();
-
-      const renderedTemplate = mustache.render(emailTemplate, {
-        name: findUser.nama,
-        verify_url: verifyUserLink,
-      });
-
-      await mailer({
-        subject: "Verfiy your account!",
-        to: findUser.email,
-        html: renderedTemplate,
-      });
+      const userInfo = await User.findByPk(id);
 
       return this.handleSuccess({
-        message: "Verification link has been sent!",
         statusCode: 200,
+        message: "Avatar edited successfully!",
+        data: userInfo,
       });
     } catch (err) {
       console.log(err);
       return this.handleError({
-        message: "Server error!",
         statusCode: 500,
+        message: "Server error!",
       });
     }
   };
@@ -319,89 +299,94 @@ class AuthService extends Service {
     try {
       const findUser = await User.findOne({
         where: {
-          [Op.or]: [{username: credential}, {email: credential}]
-        }
-      })
+          [Op.or]: [{ username: credential }, { email: credential }],
+        },
+      });
 
-      const comparePassword = bcrypt.compareSync(password, findUser.password)
+      const comparePassword = bcrypt.compareSync(password, findUser.password);
 
-      if(!findUser || !comparePassword) {
+      if (!findUser || !comparePassword) {
         return this.handleError({
           message: "Wrong Username, email or password!",
-          statusCode: 400
-        })
+          statusCode: 400,
+        });
       }
 
-      delete findUser.dataValues.password
+      delete findUser.dataValues.password;
 
-      await UserLoginSession.update({
-        is_valid: false
-      }, {
-        where:  {
-          userId: findUser.id,
-          is_valid: true
+      await UserLoginSession.update(
+        {
+          is_valid: false,
+        },
+        {
+          where: {
+            userId: findUser.id,
+            is_valid: true,
+          },
         }
-      })
+      );
 
-      const sessionToken = nanoid(64)
+      const sessionToken = nanoid(64);
 
       await UserLoginSession.create({
         token: sessionToken,
         userId: findUser.id,
         is_valid: true,
-        valid_until: moment().add(1, "day")
-      })
-
+        valid_until: moment().add(1, "day"),
+      });
 
       return this.handleSuccess({
         statusCode: 200,
         message: "Login Success!",
         data: {
           user: findUser,
-          token: sessionToken }
-      })
-      
+          token: sessionToken,
+        },
+      });
     } catch (err) {
       console.log(err);
       return this.handleError({
         statusCode: 500,
-        message: "Can't reach auth server"
-      })
+        message: "Can't reach auth server",
+      });
     }
   };
 
   static keepLoginUser = async (token, user) => {
     try {
-      const newToken = nanoid(64)
-      const findUser = await User.findByPk(user.id)
-      
-      delete findUser.dataValues.password
+      const newToken = nanoid(64);
+      const findUser = await User.findByPk(user.id);
 
-      await UserLoginSession.update({
-        token: newToken,
-        valid_until: moment().add(1, "day")
-      }, {
-        where: {
-          id: token.id
+      delete findUser.dataValues.password;
+
+      await UserLoginSession.update(
+        {
+          token: newToken,
+          valid_until: moment().add(1, "day"),
+        },
+        {
+          where: {
+            id: token.id,
+          },
         }
-      })
+      );
 
       return this.handleSuccess({
         statusCode: 200,
         message: "Token just Updated!",
         data: {
           user: findUser,
-          token: newToken
-        }
-      })
+          token: newToken,
+        },
+      });
     } catch (err) {
       console.log(err);
       return this.handleError({
         message: "Can't reach token server",
-        statusCode: 500
-      })
+        statusCode: 500,
+      });
     }
-  }
+  };
 }
 
 module.exports = AuthService;
