@@ -18,7 +18,6 @@ const bcrypt = require("bcrypt");
 class AuthService extends Service {
   static registerUser = async (username, email, name, password) => {
     try {
-      const hashedPassword = bcrypt.hashSync(password, 5);
       const isUsernameOrEmailTaken = await User.findOne({
         where: {
           [Op.or]: [{ username }, { email }],
@@ -31,6 +30,8 @@ class AuthService extends Service {
           message: "Username or email has been taken!",
         });
       }
+
+      const hashedPassword = bcrypt.hashSync(password, 5);
 
       const registerUser = await User.create({
         username,
@@ -68,7 +69,7 @@ class AuthService extends Service {
       return this.handleSuccess({
         statusCode: 201,
         message:
-          "User Registered, please check your email to verify your account!",
+          "Account Registered, please check your email to verify your account!",
         data: registerUser,
       });
     } catch (err) {
@@ -80,7 +81,7 @@ class AuthService extends Service {
     }
   };
 
-  static registerAdmin = async (username, email, name, hashedPassword) => {
+  static registerAdmin = async (username, email, name, password) => {
     try {
       const isUsernameOrEmailTaken = await Admin.findOne({
         where: {
@@ -94,6 +95,8 @@ class AuthService extends Service {
           message: "Username or email has been taken!",
         });
       }
+
+      const hashedPassword = bcrypt.hashSync(password, 5);
 
       const registerUser = await Admin.create({
         username,
@@ -176,85 +179,11 @@ class AuthService extends Service {
     }
   };
 
-  static keepLoginAdmin = async (token, admin) => {
-    try {
-      const renewedToken = nanoid(64);
-
-      const findUser = await Admin.findByPk(admin.id);
-
-      delete findUser.dataValues.password;
-
-      await AdminLoginSession.update(
-        {
-          token: renewedToken,
-          valid_until: moment().add(1, "day"),
-        },
-        {
-          where: {
-            id: token.id,
-          },
-        }
-      );
-
-      return this.handleSuccess({
-        statusCode: 200,
-        message: "Renewed user token",
-        data: {
-          user: findUser,
-          token: renewedToken,
-        },
-      });
-    } catch (err) {
-      console.log(err);
-      return this.handleError({
-        statusCode: 500,
-        message: "Server error!",
-      });
-    }
-  };
-
   static keepLoginAdmin = async (token) => {
     try {
       const renewedToken = nanoid(64);
 
       const findUser = await Admin.findByPk(admin.id);
-
-      delete findUser.dataValues.password;
-
-      await AdminLoginSession.update(
-        {
-          token: renewedToken,
-          valid_until: moment().add(1, "day"),
-        },
-        {
-          where: {
-            id: token.id,
-          },
-        }
-      );
-
-      return this.handleSuccess({
-        statusCode: 200,
-        message: "Renewed user token",
-        data: {
-          user: findUser,
-          token: renewedToken,
-        },
-      });
-    } catch (err) {
-      console.log(err);
-      return this.handleError({
-        statusCode: 500,
-        message: "Server error!",
-      });
-    }
-  };
-
-  static keepLoginAdmin = async (token) => {
-    try {
-      const renewedToken = nanoid(64);
-
-      const findUser = await Admin.findByPk(token.admin_id);
 
       delete findUser.dataValues.password;
 
@@ -332,6 +261,7 @@ class AuthService extends Service {
       });
     }
   };
+
   static loginUser = async (credential, password) => {
     try {
       const findUser = await User.findOne({
@@ -420,6 +350,104 @@ class AuthService extends Service {
       console.log(err);
       return this.handleError({
         message: "Can't reach token server",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static verifyUser = async (token) => {
+    try {
+      const verifyToken = await AccountVerificationToken.findOne({
+        where: {
+          token,
+          is_valid: true,
+          valid_until: {
+            [Op.gt]: moment().utc(),
+          },
+        },
+      });
+
+      if (!verifyToken) {
+        return this.handleError({
+          message: "Token is not valid!",
+          statusCode: 401,
+        });
+      }
+
+      await User.update(
+        { is_verified: true },
+        {
+          where: {
+            id: verifyToken.userId,
+          },
+        }
+      );
+
+      await AccountVerificationToken.update(
+        { is_valid: false },
+        {
+          where: {
+            userId: verifyToken.userId,
+          },
+        }
+      );
+
+      return this.handleRedirect({
+        url: `http://localhost:3000/verifikasi-berhasil?referral=${token}`,
+      });
+    } catch (err) {
+      return this.handleError({
+        message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static resendVerificationToken = async (userId) => {
+    try {
+      const findUser = await User.findByPk(userId);
+
+      if (findUser.is_verified) {
+        return this.handleError({
+          message: "Your account has been verified",
+          statusCode: "400",
+        });
+      }
+
+      const verifyAccountToken = nanoid(40);
+
+      await AccountVerificationToken.create({
+        token: verifyAccountToken,
+        is_valid: true,
+        valid_until: moment().add(1, "hour"),
+        userId: findUser.id,
+      });
+
+      const verifyUserLink = `http://localhost:2000/auth/verify/${verifyAccountToken}`;
+
+      const emailTemplate = fs
+        .readFileSync(__dirname + "/../../templates/verifyAccount.html")
+        .toString();
+
+      const renderedTemplate = mustache.render(emailTemplate, {
+        name: findUser.nama,
+        verify_url: verifyUserLink,
+      });
+
+      await mailer({
+        subject: "Verfiy your account!",
+        to: findUser.email,
+        html: renderedTemplate,
+      });
+
+      return this.handleSuccess({
+        message: "Verification link has been sent!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server error!",
         statusCode: 500,
       });
     }
