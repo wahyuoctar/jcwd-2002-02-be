@@ -217,6 +217,43 @@ class AuthService extends Service {
     try {
       const renewedToken = nanoid(64);
 
+      const findUser = await Admin.findByPk(admin.id);
+
+      delete findUser.dataValues.password;
+
+      await AdminLoginSession.update(
+        {
+          token: renewedToken,
+          valid_until: moment().add(1, "day"),
+        },
+        {
+          where: {
+            id: token.id,
+          },
+        }
+      );
+
+      return this.handleSuccess({
+        statusCode: 200,
+        message: "Renewed user token",
+        data: {
+          user: findUser,
+          token: renewedToken,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        statusCode: 500,
+        message: "Server error!",
+      });
+    }
+  };
+
+  static keepLoginAdmin = async (token) => {
+    try {
+      const renewedToken = nanoid(64);
+
       const findUser = await Admin.findByPk(token.admin_id);
 
       delete findUser.dataValues.password;
