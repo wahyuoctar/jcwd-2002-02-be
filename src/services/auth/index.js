@@ -4,6 +4,7 @@ const {
   AccountVerificationToken,
   Admin,
   AdminLoginSession,
+  UserLoginSession,
 } = require("../../lib/sequelize");
 const Service = require("../service");
 const mailer = require("../../lib/mailer");
@@ -314,6 +315,93 @@ class AuthService extends Service {
       });
     }
   };
+  static loginUser = async (credential, password) => {
+    try {
+      const findUser = await User.findOne({
+        where: {
+          [Op.or]: [{username: credential}, {email: credential}]
+        }
+      })
+
+      const comparePassword = bcrypt.compareSync(password, findUser.password)
+
+      if(!findUser || !comparePassword) {
+        return this.handleError({
+          message: "Wrong Username, email or password!",
+          statusCode: 400
+        })
+      }
+
+      delete findUser.dataValues.password
+
+      await UserLoginSession.update({
+        is_valid: false
+      }, {
+        where:  {
+          userId: findUser.id,
+          is_valid: true
+        }
+      })
+
+      const sessionToken = nanoid(64)
+
+      await UserLoginSession.create({
+        token: sessionToken,
+        userId: findUser.id,
+        is_valid: true,
+        valid_until: moment().add(1, "day")
+      })
+
+
+      return this.handleSuccess({
+        statusCode: 200,
+        message: "Login Success!",
+        data: {
+          user: findUser,
+          token: sessionToken }
+      })
+      
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        statusCode: 500,
+        message: "Can't reach auth server"
+      })
+    }
+  };
+
+  static keepLoginUser = async (token, user) => {
+    try {
+      const newToken = nanoid(64)
+      const findUser = await User.findByPk(user.id)
+      
+      delete findUser.dataValues.password
+
+      await UserLoginSession.update({
+        token: newToken,
+        valid_until: moment().add(1, "day")
+      }, {
+        where: {
+          id: token.id
+        }
+      })
+
+      return this.handleSuccess({
+        statusCode: 200,
+        message: "Token just Updated!",
+        data: {
+          user: findUser,
+          token: newToken
+        }
+      })
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't reach token server",
+        statusCode: 500
+      })
+    }
+  }
 }
 
 module.exports = AuthService;
