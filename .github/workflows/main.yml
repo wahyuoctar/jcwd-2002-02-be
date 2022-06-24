@@ -35,5 +35,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /root/group_2/be
-            yarn install
+            npx yarn install
             pm2 start ecosystem.config.js
