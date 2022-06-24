@@ -1,5 +1,3 @@
-const fileUploader = require("../lib/uploader");
-
 const authController = require("../controller/auth");
 const { authorizedLoginUser } = require("../middleware/authorizeLoginUser");
 const { authorizedLoginAdmin } = require("../middleware/authorizeLoginAdmin");
@@ -16,7 +14,7 @@ router.post("/admin/login", authController.loginAdmin);
 
 // keep login router untuk admin
 router.get(
-  "/admin/resfresh-token",
+  "/admin/refresh-token",
   authorizedLoginAdmin,
   authController.keepLoginAdmin
 );
@@ -31,16 +29,5 @@ router.post(
 router.post("/login", authController.loginUser);
 
 router.get("/refresh-token", authorizedLoginUser, authController.keepLoginUser);
-
-// edit profile picture user
-router.patch(
-  "/:id",
-  fileUploader({
-    destinationFolder: "avatar",
-    fileType: "image",
-    prefix: "AVATAR",
-  }).single("avatar_image_file"),
-  authController.editAvatarUser
-);
 
 module.exports = router;

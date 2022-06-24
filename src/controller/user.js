@@ -1,24 +1,42 @@
-const UserService = require("../services/user")
+const UserService = require("../services/user");
 
 const userControllers = {
-getUserById : async (req,res) => {
-try {
-    const {userId} = req.params
-    const serviceResult = await UserService.getUserById(userId)
+  getUserById: async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const serviceResult = await UserService.getUserById(userId);
 
-    if(!serviceResult.success) throw serviceResult
+      if (!serviceResult.success) throw serviceResult;
 
-    return res.status(serviceResult.statusCode || 200).json({
+      return res.status(serviceResult.statusCode || 200).json({
         message: serviceResult.message,
-        result: serviceResult.data
-    })
-} catch (err) {
-    console.log(err);
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      console.log(err);
       return res.status(err.statusCode || 500).json({
-        message: err.message
-      })
-}
-}
-}
+        message: err.message,
+      });
+    }
+  },
 
-module.exports = userControllers
+  editAvatarUser: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const serviceResult = await UserService.editAvatarUser(id, req.file);
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+};
+
+module.exports = userControllers;

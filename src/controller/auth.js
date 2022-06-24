@@ -42,24 +42,6 @@ const authController = {
     }
   },
 
-  resendVerificationEmail: async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const serviceResult = await AuthService.resendVerificationToken(userId);
-
-      if (!serviceResult.success) throw serviceResult;
-
-      return res.status(serviceResult.statusCode || 200).json({
-        message: serviceResult.message,
-        result: serviceResult.data,
-      });
-    } catch (err) {
-      console.log(err);
-      return res.status(err.statusCode || 500).json({
-        message: err.message,
-      });
-    }
-  },
   loginUser: async (req, res) => {
     try {
       const { credential, password } = req.body;
@@ -117,25 +99,6 @@ const authController = {
     }
   },
 
-  keepLoginAdmin: async (req, res) => {
-    try {
-      const { token } = req;
-      const serviceResult = await AuthService.keepLoginAdmin(token);
-
-      if (!serviceResult.success) throw serviceResult;
-
-      return res.status(serviceResult.statusCode || 200).json({
-        message: serviceResult.message,
-        result: serviceResult.data,
-      });
-    } catch (err) {
-      console.log(err);
-      return res.status(err.statusCode || 500).json({
-        message: err.message,
-      });
-    }
-  },
-
   registerAdmin: async (req, res) => {
     try {
       const { name, username, email, password } = req.body;
@@ -160,51 +123,15 @@ const authController = {
     }
   },
 
-  editAvatarUser: async (req, res) => {
+  keepLoginAdmin: async (req, res) => {
     try {
-      const { id } = req.params;
-
-      const serviceResult = await AuthService.editAvatarUser(id, req.file);
+      const { adminToken, admin } = req;
+      const serviceResult = await AuthService.keepLoginAdmin(adminToken, admin);
       if (!serviceResult.success) throw serviceResult;
       return res.status(serviceResult.statusCode || 200).json({
         message: serviceResult.message,
         result: serviceResult.data,
       });
-    } catch (err) {
-      console.log(err);
-      return res.status(err.statusCode || 500).json({
-        message: err.message,
-      });
-    }
-  },
-
-  resendVerificationEmail: async (req, res) => {
-    try {
-      const serviceResult = await AuthService.resendVerificationToken(req);
-
-      if (!serviceResult.success) throw serviceResult;
-
-      return res.status(serviceResult.statusCode || 200).json({
-        message: serviceResult.message,
-        result: serviceResult.data,
-      });
-    } catch (err) {
-      console.log(err);
-      return res.status(err.statusCode || 500).json({
-        message: err.message,
-      });
-    }
-  },
-
-  verifyUser: async (req, res) => {
-    try {
-      const { token } = req.params;
-
-      const serviceResult = await AuthService.verifyUser(token);
-
-      if (!serviceResult.success) throw serviceResult;
-
-      return res.redirect(serviceResult.url);
     } catch (err) {
       console.log(err);
       return res.status(err.statusCode || 500).json({

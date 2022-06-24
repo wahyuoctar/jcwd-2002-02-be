@@ -5,6 +5,7 @@ const moment = require("moment");
 const authorizedLoginAdmin = async (req, res, next) => {
   try {
     const token = req.headers.authorization;
+    console.log(token);
     // AdminLoginSession
     const validateToken = await AdminLoginSession.findOne({
       where: {
@@ -25,6 +26,8 @@ const authorizedLoginAdmin = async (req, res, next) => {
     req.adminToken = { token: validateToken.token, id: validateToken.id };
     // req.admin
     req.admin = { id: validateToken.admin_id };
+
+    console.log(req.admin, req.adminToken);
 
     next();
   } catch (err) {
