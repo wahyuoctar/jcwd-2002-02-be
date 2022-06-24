@@ -78,6 +78,67 @@ class UserService extends Service {
       });
     }
   };
+
+  static editUser = async (userId, username, nama, gender, DOB) => {
+    try {
+      const findUser = await User.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!findUser) {
+        return this.handleError({
+          statusCode: 400,
+          message: "Wrong User ID!",
+        });
+      }
+
+      if (username) {
+        const findUsername = await User.findOne({
+          where: {
+            username,
+          },
+        });
+
+        if (findUsername) {
+          return this.handleError({
+            message: "Please use different Username!",
+            statusCode: 400,
+          });
+        }
+      }
+
+      await User.update(
+        {
+          nama,
+          username,
+          gender,
+          DOB,
+        },
+        {
+          where: {
+            id: userId,
+          },
+        }
+      );
+
+      const editedUser = await User.findByPk(userId);
+      delete editedUser.dataValues.password;
+
+      return this.handleSuccess({
+        statusCode: 200,
+        message: "User Edited!",
+        data: editedUser,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        statusCode: 500,
+        message: "Can't reach user server",
+      });
+    }
+  };
 }
 
 module.exports = UserService;
