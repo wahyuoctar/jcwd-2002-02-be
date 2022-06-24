@@ -10,7 +10,7 @@ dotenv.config();
 const { sequelize } = require("./lib/sequelize");
 sequelize.sync({ alter: true });
 
-const PORT = 2000;
+const PORT = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
