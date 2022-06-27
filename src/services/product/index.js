@@ -1,38 +1,75 @@
-const { Produk, KategoriProduk } = require("../../lib/sequelize")
-const Service = require("../service")
+const { Produk, KategoriProduk } = require("../../lib/sequelize");
+const Service = require("../service");
 
 class ProductService extends Service {
-    static getProduct = async (req) => {
-        try {
-            const {productId} = req.params
+  static getProduct = async (req) => {
+    try {
+      const { productId } = req.params;
 
-            const getProductData = await Produk.findOne({
-                where: {
-                    id: productId
-                }
-            })
+      const getProductData = await Produk.findOne({
+        where: {
+          id: productId,
+        },
+      });
 
-            if(!getProductData) {
-                return this.handleError({
-                    message: `Can't Find Product with ID: ${productId}`,
-                    statusCode: 404
-                })
-            }
+      if (!getProductData) {
+        return this.handleError({
+          message: `Can't Find Product with ID: ${productId}`,
+          statusCode: 404,
+        });
+      }
 
-            return this.handleSuccess({
-                message: "Product Found",
-                statusCode: 200,
-                data: getProductData
-            })
-            
-        } catch (err) {
-            console.log(err);
-            return this.handleError({
-                message: "Can't Reach Product Server",
-                statusCode: 500
-            })
-        }
+      return this.handleSuccess({
+        message: "Product Found",
+        statusCode: 200,
+        data: getProductData,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't Reach Product Server",
+        statusCode: 500,
+      });
     }
+  };
+
+  static getAllProduct = async (query) => {
+    try {
+      const { _limit = 30, _page = 1, _sortBy = "", _sortDir = "" } = query;
+
+      delete query._limit;
+      delete query._page;
+      delete query._sortBy;
+      delete query._sortDir;
+
+      const findProducts = await Produk.findAndCountAll({
+        where: {
+          ...query,
+        },
+        limit: _limit ? parseInt(_limit) : undefined,
+        offset: (_page - 1) * _limit,
+        distinct: true,
+      });
+
+      if (!findProducts) {
+        return this.handleError({
+          message: "No product found, server error",
+          statusCode: 500,
+        });
+      }
+      return this.handleSuccess({
+        message: "Products found",
+        statusCode: 200,
+        data: findProducts,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
-module.exports = ProductService
+module.exports = ProductService;
