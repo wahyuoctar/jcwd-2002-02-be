@@ -406,6 +406,53 @@ class AuthService extends Service {
       });
     }
   };
+
+  static changePassword = async (userId, oldPassword, newPassword) => {
+    try {
+      const findUser = await User.findByPk(userId);
+
+      if (!findUser) {
+        return this.handleError({
+          message: "User not found!",
+          statusCode: 400,
+        });
+      }
+
+      const comparePassword = bcrypt.compareSync(
+        oldPassword,
+        findUser.password
+      );
+
+      if (!comparePassword) {
+        return this.handleError({
+          message: "Change password failed, your current password is wrong!",
+          statusCode: 400,
+        });
+      }
+
+      const newHashedPassword = bcrypt.hashSync(newPassword, 5);
+
+      await User.update(
+        { password: newHashedPassword },
+        {
+          where: {
+            id: userId,
+          },
+        }
+      );
+
+      return this.handleSuccess({
+        message: "Password has been changed!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
 module.exports = AuthService;

@@ -14,7 +14,7 @@ router.post("/admin/login", authController.loginAdmin);
 
 // keep login router untuk admin
 router.get(
-  "/admin/refresh-token",
+  "/admin/resfresh-token",
   authorizedLoginAdmin,
   authController.keepLoginAdmin
 );
@@ -29,5 +29,11 @@ router.post(
 router.post("/login", authController.loginUser);
 
 router.get("/refresh-token", authorizedLoginUser, authController.keepLoginUser);
+
+router.post(
+  "/change-password",
+  authorizedLoginUser,
+  authController.changePassword
+);
 
 module.exports = router;

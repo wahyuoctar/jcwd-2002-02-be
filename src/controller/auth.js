@@ -25,23 +25,6 @@ const authController = {
     }
   },
 
-  verifyUser: async (req, res) => {
-    try {
-      const { token } = req.params;
-
-      const serviceResult = await AuthService.verifyUser(token);
-
-      if (!serviceResult.success) throw serviceResult;
-
-      return res.redirect(serviceResult.url);
-    } catch (err) {
-      console.log(err);
-      return res.status(err.statusCode || 500).json({
-        message: err.message,
-      });
-    }
-  },
-
   loginUser: async (req, res) => {
     try {
       const { credential, password } = req.body;
@@ -144,6 +127,48 @@ const authController = {
     try {
       const userId = req.user.id;
       const serviceResult = await AuthService.resendVerificationToken(userId);
+
+      if (!serviceResult.success) throw serviceResult;
+
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+
+  verifyUser: async (req, res) => {
+    try {
+      const { token } = req.params;
+
+      const serviceResult = await AuthService.verifyUser(token);
+
+      if (!serviceResult.success) throw serviceResult;
+
+      return res.redirect(serviceResult.url);
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+
+  changePassword: async (req, res) => {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      const userId = req.user.id;
+
+      const serviceResult = await AuthService.changePassword(
+        userId,
+        oldPassword,
+        newPassword
+      );
 
       if (!serviceResult.success) throw serviceResult;
 
