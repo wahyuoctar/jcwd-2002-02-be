@@ -5,6 +5,7 @@ const {
   Admin,
   AdminLoginSession,
   UserLoginSession,
+  ForgotPasswordToken,
 } = require("../../lib/sequelize");
 const Service = require("../service");
 const mailer = require("../../lib/mailer");
@@ -437,6 +438,103 @@ class AuthService extends Service {
         {
           where: {
             id: userId,
+          },
+        }
+      );
+
+      return this.handleSuccess({
+        message: "Password has been changed!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static sendResetPasswordEmail = async (email) => {
+    try {
+      const findUser = await User.findOne({
+        where: {
+          email,
+        },
+      });
+
+      if (!findUser) {
+        return this.handleError({
+          message: "User not found!",
+          statusCode: 400,
+        });
+      }
+
+      const resetPasswordToken = nanoid(40);
+
+      await ForgotPasswordToken.create({
+        token: resetPasswordToken,
+        valid_until: moment().add(1, "hour"),
+        is_valid: true,
+        userId: findUser.id,
+      });
+
+      const forgotPasswordLink = `http://localhost:3000/forgot-password/?fp_token=${resetPasswordToken}`;
+
+      const emailTemplate = fs
+        .readFileSync(__dirname + "/../../templates/resetPassword.html")
+        .toString();
+
+      const renderedTemplate = mustache.render(emailTemplate, {
+        name: findUser.nama,
+        reset_password_url: forgotPasswordLink,
+      });
+
+      await mailer({
+        to: email,
+        subject: "Reset Password!",
+        html: renderedTemplate,
+      });
+
+      return this.handleSuccess({
+        message: "Email has been sent to your email!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static resetPassword = async (password, passwordToken) => {
+    try {
+      const validateToken = await ForgotPasswordToken.findOne({
+        where: {
+          token: passwordToken,
+          is_valid: true,
+          valid_until: {
+            [Op.gt]: moment().utc(),
+          },
+        },
+      });
+
+      if (!validateToken) {
+        return this.handleError({
+          message: "Token is invalid or has expired!",
+          statusCode: 400,
+        });
+      }
+
+      const hashedPassword = bcrypt.hashSync(password, 5);
+
+      await User.update(
+        { password: hashedPassword },
+        {
+          where: {
+            id: validateToken.userId,
           },
         }
       );
