@@ -7,6 +7,14 @@ const Produk = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    nomor_obat: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    nomor_bpom: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     harga: {
       type: DataTypes.INTEGER,
       allowNull: false,
