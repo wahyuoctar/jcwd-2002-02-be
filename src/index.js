@@ -23,15 +23,22 @@ app.use((req, res, next) => {
   next();
 });
 
-const { authRoutes, productRoutes, userRoutes } = require("./routes");
+const {
+  authRoutes,
+  productRoutes,
+  userRoutes,
+  adminRoutes,
+} = require("./routes");
 
 app.use("/avatar", express.static(`${__dirname}/public/avatar`));
+app.use("/product", express.static(`${__dirname}/public/product`));
 app.use("/auth", authRoutes);
 app.use("/product", productRoutes);
 app.use("/user", userRoutes);
-app.use("/", (req, res, next) => {
-  res.send("<h1>welcome to Pharmacy API</h1>");
-});
+app.use("/admin", adminRoutes);
+// app.use("/", (req, res, next) => {
+//   res.send("<h1>welcome to Pharmacy API</h1>");
+// });
 
 app.listen(PORT, () => {
   console.log("Listening in Port: ", PORT);
