@@ -1,4 +1,4 @@
 node_modules
 .env
 .log
-src/public/avatar
+src/public/**
