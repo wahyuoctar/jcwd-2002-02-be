@@ -13,7 +13,7 @@ const { nanoid } = require("nanoid");
 const moment = require("moment");
 const fs = require("fs");
 const mustache = require("mustache");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 // const { generateToken } = require("../../lib/jwt");
 
 class AuthService extends Service {
