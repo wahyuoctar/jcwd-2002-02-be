@@ -5,25 +5,18 @@ const adminControllers = {
     try {
       const {
         nama_produk,
-        harga,
+        nomor_obat,
+        nomor_bpom,
+        harga_jual,
         diskon,
-        harga_modal,
-        produk_image_url,
         productCategoryId,
+        satuan,
       } = req.body;
       const file = req.files;
 
       console.log(req.files);
 
-      const serviceResult = await AdminService.addProduct(
-        nama_produk,
-        harga,
-        diskon,
-        harga_modal,
-        produk_image_url,
-        productCategoryId,
-        file
-      );
+      const serviceResult = await AdminService.addProduct(req.body, file);
       if (!serviceResult.success) throw serviceResult;
       return res.status(serviceResult.statusCode || 201).json({
         message: serviceResult.message,
@@ -40,6 +33,22 @@ const adminControllers = {
     try {
       const { kategori } = req.body;
       const serviceResult = await AdminService.addProductCategory(kategori);
+
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 201).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+  getAllProductCategory: async (req, res) => {
+    try {
+      const serviceResult = await AdminService.getAllProductCategory();
 
       if (!serviceResult.success) throw serviceResult;
       return res.status(serviceResult.statusCode || 201).json({
