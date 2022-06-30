@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const { Produk, KategoriProduk } = require("../../lib/sequelize");
 const Service = require("../service");
 
@@ -35,20 +36,34 @@ class ProductService extends Service {
 
   static getAllProduct = async (query) => {
     try {
-      const { _limit = 30, _page = 1, _sortBy = "", _sortDir = "" } = query;
+      const {
+        _limit = 30,
+        _page = 1,
+        _sortBy = "",
+        _sortDir = "",
+        hargaMinimum,
+        hargaMaksimum,
+      } = query;
 
       delete query._limit;
       delete query._page;
       delete query._sortBy;
       delete query._sortDir;
+      delete query.hargaMinimum;
+      delete query.hargaMaksimum;
 
       const findProducts = await Produk.findAndCountAll({
         where: {
           ...query,
+          harga: {
+            [Op.between]: [hargaMinimum || 0, hargaMaksimum || 9999999999],
+          },
         },
         limit: _limit ? parseInt(_limit) : undefined,
         offset: (_page - 1) * _limit,
         distinct: true,
+
+        order: _sortBy ? [[_sortBy, _sortDir]] : undefined,
       });
 
       if (!findProducts) {
