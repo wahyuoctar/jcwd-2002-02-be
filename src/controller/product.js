@@ -20,6 +20,7 @@ const productControllers = {
 
   getAllProduct: async (req, res) => {
     try {
+      console.log("HALO");
       const serviceResult = await ProductService.getAllProduct(req.query);
       if (!serviceResult.success) throw serviceResult;
       return res.status(serviceResult.statusCode || 200).json({
