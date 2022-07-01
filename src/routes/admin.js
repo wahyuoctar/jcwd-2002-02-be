@@ -17,7 +17,6 @@ router.post(
 // Input New Product Category
 router.post("/product-category", adminControllers.addProductCategory);
 
-
 // Get Product Category
 router.get("/product-category", adminControllers.getAllProductCategory);
 

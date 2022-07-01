@@ -63,7 +63,7 @@ const adminControllers = {
       });
     }
   },
-    
+
   getProduct: async (req, res) => {
     try {
       const serviceResult = await AdminService.getProductList(req.query);

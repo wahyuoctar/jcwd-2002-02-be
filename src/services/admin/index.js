@@ -1,4 +1,3 @@
-
 const sequelize = require("sequelize");
 const {
   Produk,
@@ -73,8 +72,7 @@ class AdminService extends Service {
         statusCode: 500,
       });
     }
-    };
-
+  };
 
   static getProductList = async (query) => {
     try {
