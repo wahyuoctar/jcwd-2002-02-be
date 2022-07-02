@@ -42,4 +42,11 @@ router.put(
   adminControllers.editProductImages
 );
 
+// Delete Product
+router.delete(
+  "/product/:productId",
+  authorizedLoginAdmin,
+  adminControllers.deleteProduct
+);
+
 module.exports = router;

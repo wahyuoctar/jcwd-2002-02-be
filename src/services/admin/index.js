@@ -237,6 +237,40 @@ class AdminService extends Service {
       });
     }
   };
+
+  static deleteProduct = async (productId) => {
+    try {
+      const findProduct = await Produk.findOne({
+        where: {
+          id: productId,
+        },
+      });
+
+      if (!findProduct) {
+        return this.handleError({
+          message: `Can't Find Product With ID: ${productId}`,
+          statusCode: 404,
+        });
+      }
+
+      await Produk.destroy({
+        where: {
+          id: productId,
+        },
+      });
+
+      return this.handleSuccess({
+        message: `Delete Product ID: ${productId} Success`,
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
 module.exports = AdminService;
