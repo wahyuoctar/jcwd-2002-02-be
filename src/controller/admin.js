@@ -91,10 +91,28 @@ const adminControllers = {
         productCategoryId,
         diskon,
       } = req.body;
+
+      const serviceResult = await AdminService.editProduct(req.body, productId);
+
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 201).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+
+  editProductImages: async (req, res) => {
+    try {
+      const { productId } = req.params;
       const file = req.files;
 
-      const serviceResult = await AdminService.editProduct(
-        req.body,
+      const serviceResult = await AdminService.editProductImages(
         productId,
         file
       );

@@ -25,14 +25,17 @@ router.get("/product-category", adminControllers.getAllProductCategory);
 router.get("/product", adminControllers.getProduct);
 
 // Edit Product
+router.patch("/product/:productId", adminControllers.editProduct);
+
+// Edit Product Images
 router.patch(
-  "/product/:productId",
+  "/product-images/:productId",
   fileUploader({
     destinationFolder: "product",
     prefix: "PRODUCT",
     fileType: "image",
   }).array("product_image_file", 5),
-  adminControllers.editProduct
+  adminControllers.editProductImages
 );
 
 module.exports = router;
