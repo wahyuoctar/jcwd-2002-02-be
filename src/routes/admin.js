@@ -1,5 +1,6 @@
 const adminControllers = require("../controller/admin");
 const fileUploader = require("../lib/uploader");
+const { authorizedLoginAdmin } = require("../middleware/authorizeLoginAdmin");
 
 const router = require("express").Router();
 
@@ -20,6 +21,25 @@ router.post("/product-category", adminControllers.addProductCategory);
 // Get Product Category
 router.get("/product-category", adminControllers.getAllProductCategory);
 
+// Get Product
 router.get("/product", adminControllers.getProduct);
+
+// Edit Product
+router.patch(
+  "/product/:productId",
+  authorizedLoginAdmin,
+  adminControllers.editProduct
+);
+
+// Edit Product Images
+router.put(
+  "/product-images/:productId",
+  fileUploader({
+    destinationFolder: "product",
+    prefix: "PRODUCT",
+    fileType: "image",
+  }).array("product_image_file", 5),
+  adminControllers.editProductImages
+);
 
 module.exports = router;

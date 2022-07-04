@@ -146,6 +146,97 @@ class AdminService extends Service {
       });
     }
   };
+
+  static editProduct = async (body, id) => {
+    try {
+      const findProducts = await Produk.findOne({
+        where: {
+          id,
+        },
+      });
+
+      if (!findProducts) {
+        return this.handleError({
+          message: `Can't find Product with ID: ${id}`,
+          statusCode: 404,
+        });
+      }
+
+      const editProduk = await Produk.update(
+        {
+          nama_produk: body.nama_produk,
+          nomor_obat: body.nomor_obat,
+          nomor_bpom: body.nomor_bpom,
+          harga_jual: body.harga_jual,
+          satuan: body.satuan,
+          productCategoryId: body.productCategoryId,
+          diskon: body.diskon,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      return this.handleSuccess({
+        message: "Product Edited!",
+        statusCode: 201,
+        data: editProduk,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Edit Product Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static editProductImages = async (id, file) => {
+    try {
+      const uploadFileDomain = process.env.UPLOAD_FILE_DOMAIN;
+      const filePath = "product";
+      const filename = file.map((val) => {
+        return `${uploadFileDomain}/${filePath}/${val.filename}`;
+      });
+
+      const findProducts = await Produk.findOne({
+        where: {
+          id,
+        },
+      });
+
+      const editProdukImages = await Produk.update(
+        {
+          produk_image_url: filename,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (!findProducts) {
+        return this.handleError({
+          message: `Can't find Product with ID: ${id}`,
+          statusCode: 404,
+        });
+      }
+      return this.handleSuccess({
+        message: "Product Images Edited!",
+        statusCode: 201,
+        data: editProdukImages,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Edit Product Images Error!",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
 module.exports = AdminService;
