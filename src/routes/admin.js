@@ -28,7 +28,7 @@ router.get("/product", adminControllers.getProduct);
 router.patch("/product/:productId", adminControllers.editProduct);
 
 // Edit Product Images
-router.patch(
+router.put(
   "/product-images/:productId",
   fileUploader({
     destinationFolder: "product",
