@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const sequelize = require("sequelize");
 const {
   Produk,
@@ -76,16 +77,40 @@ class AdminService extends Service {
 
   static getProductList = async (query) => {
     try {
-      const { _limit = 30, _page = 0, _sortBy = "", _sortDir = "" } = query;
+      const {
+        _limit = 30,
+        _page = 0,
+        _sortBy = "",
+        _sortDir = "",
+        filterCategory,
+        searchProduk,
+      } = query;
 
       delete query._limit;
       delete query._page;
       delete query._sortBy;
       delete query._sortDir;
+      delete query.filterCategory;
+      delete query.searchProduk;
+
+      const whereCategoryClause = {};
+      let searchByNameClause = {};
+
+      if (filterCategory) {
+        whereCategoryClause.productCategoryId = filterCategory;
+      }
+
+      if (searchProduk) {
+        searchByNameClause = {
+          nama_produk: { [Op.like]: `%${searchProduk}%` },
+        };
+      }
 
       const findProducts = await Produk.findAndCountAll({
         where: {
           ...query,
+          ...searchByNameClause,
+          ...whereCategoryClause,
         },
         limit: _limit ? parseInt(_limit) : undefined,
         offset: _page * _limit,
