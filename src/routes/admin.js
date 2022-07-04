@@ -25,7 +25,11 @@ router.get("/product-category", adminControllers.getAllProductCategory);
 router.get("/product", adminControllers.getProduct);
 
 // Edit Product
-router.patch("/product/:productId", adminControllers.editProduct);
+router.patch(
+  "/product/:productId",
+  authorizedLoginAdmin,
+  adminControllers.editProduct
+);
 
 // Edit Product Images
 router.put(
