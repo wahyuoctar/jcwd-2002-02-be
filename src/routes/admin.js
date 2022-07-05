@@ -49,4 +49,10 @@ router.delete(
   adminControllers.deleteProduct
 );
 
+// Input Stock Status
+router.post("/stock/status", adminControllers.addStockStatus);
+
+// Input Stock
+router.post("/stock", authorizedLoginAdmin, adminControllers.addStock);
+
 module.exports = router;

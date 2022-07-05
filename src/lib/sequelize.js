@@ -32,7 +32,6 @@ const MetodePembayaran = require("../models/metodePembayaran")(sequelize);
 const BuktiPembayaran = require("../models/buktiPembayaran")(sequelize);
 const StatusTransaksi = require("../models/statusTransaksi")(sequelize);
 const MutasiStok = require("../models/mutasiStok")(sequelize);
-const TipeMutasi = require("../models/tipeMutasi")(sequelize);
 
 // defind the relationship of the model
 Admin.hasMany(AdminLoginSession, { foreignKey: "admin_id" });
@@ -74,9 +73,6 @@ Stok.belongsTo(StokStatus);
 Produk.hasMany(MutasiStok);
 MutasiStok.belongsTo(Produk);
 
-TipeMutasi.hasMany(MutasiStok);
-MutasiStok.belongsTo(TipeMutasi);
-
 User.hasMany(DaftarTransaksi);
 DaftarTransaksi.belongsTo(User);
 
@@ -117,7 +113,6 @@ module.exports = {
   StatusTransaksi,
   Stok,
   StokStatus,
-  TipeMutasi,
   User,
   UserLoginSession,
 };
