@@ -57,7 +57,7 @@ class ProductService extends Service {
       delete query.searchProduk;
 
       const whereCategoryClause = {};
-      const searchByNameClause = {};
+      let searchByNameClause = {};
 
       if (kategoriTerpilih) {
         whereCategoryClause.productCategoryId = kategoriTerpilih;
