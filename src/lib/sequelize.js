@@ -70,8 +70,8 @@ Stok.belongsTo(Produk);
 StokStatus.hasMany(Stok);
 Stok.belongsTo(StokStatus);
 
-Produk.hasMany(MutasiStok);
-MutasiStok.belongsTo(Produk);
+Stok.hasMany(MutasiStok);
+MutasiStok.belongsTo(Stok);
 
 User.hasMany(DaftarTransaksi);
 DaftarTransaksi.belongsTo(User);

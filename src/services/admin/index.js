@@ -314,6 +314,7 @@ class AdminService extends Service {
         jumlah: body.jumlah_stok,
         productId: body.productId,
         aktivitas: "Penerimaan Barang",
+        stockId: addStock.id,
       });
 
       return this.handleSuccess({
@@ -325,6 +326,47 @@ class AdminService extends Service {
       console.log(err);
       return this.handleError({
         message: "Can't Reach Stock Server",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getProductStockHistory = async (productId) => {
+    try {
+      const findProductStock = await Produk.findAll({
+        where: {
+          id: productId,
+        },
+        include: [
+          {
+            model: Stok,
+            attributes: ["id", "exp_date", "jumlah_stok"],
+            include: [
+              {
+                model: MutasiStok,
+                attributes: ["aktivitas", "jumlah"],
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!findProductStock) {
+        return this.handleError({
+          message: "The product does not have a stock history",
+          statusCode: 404,
+        });
+      }
+
+      return this.handleSuccess({
+        message: "Product stock history found!",
+        statusCode: 200,
+        data: findProductStock,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't reach product stock server",
         statusCode: 500,
       });
     }
