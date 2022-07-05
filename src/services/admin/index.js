@@ -5,6 +5,8 @@ const {
   KategoriProduk,
   Stok,
   StokStatus,
+  MutasiStok,
+  PurchaseOrder,
 } = require("../../lib/sequelize");
 const Service = require("../service");
 
@@ -267,6 +269,62 @@ class AdminService extends Service {
       console.log(err);
       return this.handleError({
         message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static addStockStatus = async (status) => {
+    try {
+      const addStatus = await StokStatus.create({
+        status,
+      });
+
+      return this.handleSuccess({
+        message: "Status Added",
+        statusCode: 201,
+        data: addStatus,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't Reach Stock Server",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static addStock = async (body, adminId) => {
+    try {
+      const addStock = await Stok.create({
+        exp_date: body.exp_date,
+        jumlah_stok: body.jumlah_stok,
+        productId: body.productId,
+        stockStatusId: 1,
+      });
+
+      await PurchaseOrder.create({
+        amount: body.jumlah_stok,
+        price: body.price,
+        adminId,
+        productId: body.productId,
+      });
+
+      await MutasiStok.create({
+        jumlah: body.jumlah_stok,
+        productId: body.productId,
+        aktivitas: "Penerimaan Barang",
+      });
+
+      return this.handleSuccess({
+        message: "Stock Added",
+        statusCode: 201,
+        data: addStock,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't Reach Stock Server",
         statusCode: 500,
       });
     }
