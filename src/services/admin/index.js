@@ -351,7 +351,7 @@ class AdminService extends Service {
         });
       }
 
-      const findProductStock = await Stok.findAndCountAll({
+      const findProductStock = await MutasiStok.findAndCountAll({
         where: {
           productId,
           ...query,
@@ -359,10 +359,11 @@ class AdminService extends Service {
         limit: _limit ? parseInt(_limit) : undefined,
         offset: (_page - 1) * _limit,
         distinct: true,
+        attributes: ["aktivitas", "jumlah"],
         include: [
           {
-            model: MutasiStok,
-            attributes: ["aktivitas", "jumlah"],
+            model: Stok,
+            attributes: ["id", "createdAt", "exp_date"],
           },
         ],
       });
@@ -377,10 +378,7 @@ class AdminService extends Service {
       return this.handleSuccess({
         message: "Product stock history found!",
         statusCode: 200,
-        data: {
-          product: findProduct,
-          stock: findProductStock,
-        },
+        data: findProductStock,
       });
     } catch (err) {
       console.log(err);
