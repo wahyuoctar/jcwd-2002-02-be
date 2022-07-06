@@ -331,22 +331,38 @@ class AdminService extends Service {
     }
   };
 
-  static getProductStockHistory = async (productId) => {
+  static getProductStockHistory = async (productId, query) => {
     try {
-      const findProductStock = await Produk.findAll({
+      const { _limit = 10, _page = 1 } = query;
+
+      delete query._limit;
+      delete query._page;
+
+      const findProduct = await Produk.findOne({
         where: {
           id: productId,
         },
+      });
+
+      if (!findProduct) {
+        return this.handleError({
+          message: `Can't Find Product with ID: ${productId}`,
+          statusCode: 404,
+        });
+      }
+
+      const findProductStock = await Stok.findAndCountAll({
+        where: {
+          productId,
+          ...query,
+        },
+        limit: _limit ? parseInt(_limit) : undefined,
+        offset: (_page - 1) * _limit,
+        distinct: true,
         include: [
           {
-            model: Stok,
-            attributes: ["id", "exp_date", "jumlah_stok"],
-            include: [
-              {
-                model: MutasiStok,
-                attributes: ["aktivitas", "jumlah"],
-              },
-            ],
+            model: MutasiStok,
+            attributes: ["aktivitas", "jumlah"],
           },
         ],
       });
@@ -361,7 +377,10 @@ class AdminService extends Service {
       return this.handleSuccess({
         message: "Product stock history found!",
         statusCode: 200,
-        data: findProductStock,
+        data: {
+          product: findProduct,
+          stock: findProductStock,
+        },
       });
     } catch (err) {
       console.log(err);

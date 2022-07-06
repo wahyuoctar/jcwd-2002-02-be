@@ -55,8 +55,8 @@ Cart.belongsTo(User);
 Produk.hasMany(Cart);
 Cart.belongsTo(Produk);
 
-Produk.hasMany(PurchaseOrder);
-PurchaseOrder.belongsTo(Produk);
+Stok.hasMany(PurchaseOrder);
+PurchaseOrder.belongsTo(Stok);
 
 Admin.hasMany(PurchaseOrder);
 PurchaseOrder.belongsTo(Admin);

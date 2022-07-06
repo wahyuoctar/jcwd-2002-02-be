@@ -190,7 +190,8 @@ const adminControllers = {
       const { productId } = req.params;
 
       const serviceResult = await AdminService.getProductStockHistory(
-        productId
+        productId,
+        req.query
       );
       if (!serviceResult.success) throw serviceResult;
       return res.status(serviceResult.statusCode || 201).json({
