@@ -28,6 +28,7 @@ const {
   productRoutes,
   userRoutes,
   adminRoutes,
+  cartRoutes,
   transactionRoutes,
 } = require("./routes");
 
@@ -37,7 +38,9 @@ app.use("/auth", authRoutes);
 app.use("/product", productRoutes);
 app.use("/user", userRoutes);
 app.use("/admin", adminRoutes);
+app.use("/cart", cartRoutes);
 app.use("/transaction", transactionRoutes);
+
 // app.use("/", (req, res, next) => {
 //   res.send("<h1>welcome to Pharmacy API</h1>");
 // });
