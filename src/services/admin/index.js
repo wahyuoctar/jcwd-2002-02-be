@@ -1,3 +1,4 @@
+const moment = require("moment");
 const { Op } = require("sequelize");
 const sequelize = require("sequelize");
 const {
@@ -333,10 +334,69 @@ class AdminService extends Service {
 
   static getProductStockHistory = async (productId, query) => {
     try {
-      const { _limit = 10, _page = 1 } = query;
+      const {
+        _limit = 10,
+        _page = 1,
+        filterByMonth,
+        filterByYear,
+        filterByActivity,
+      } = query;
 
       delete query._limit;
       delete query._page;
+      delete query.filterByMonth;
+      delete query.filterByYear;
+      delete query.filterByActivity;
+
+      let searchByMonthOrYear = {};
+      let whereActivityClause = {};
+
+      if (filterByMonth && filterByYear) {
+        searchByMonthOrYear = {
+          createdAt: {
+            [Op.between]: [
+              `${filterByYear}-${moment(filterByMonth).format(
+                "MM"
+              )}-01T00:00:00.000Z`,
+              `${filterByYear}-${moment(filterByMonth).format(
+                "MM"
+              )}-31T00:00:00.000Z`,
+            ],
+          },
+        };
+      } else if (filterByMonth) {
+        searchByMonthOrYear = {
+          createdAt: {
+            [Op.between]: [
+              `${moment().format("YYYY")}-${moment(filterByMonth).format(
+                "MM"
+              )}-01T00:00:00.000Z`,
+              `${moment().format("YYYY")}-${moment(filterByMonth).format(
+                "MM"
+              )}-31T00:00:00.000Z`,
+            ],
+          },
+        };
+      } else if (filterByYear) {
+        searchByMonthOrYear = {
+          createdAt: {
+            [Op.between]: [
+              `${filterByYear}-01-01T00:00:00.000Z`,
+              `${filterByYear}-12-31T00:00:00.000Z`,
+            ],
+          },
+        };
+      }
+
+      if (filterByActivity) {
+        whereActivityClause = {
+          aktivitas: {
+            [Op.like]: `%${filterByActivity}%`,
+          },
+        };
+      }
+
+      console.log(filterByActivity);
 
       const findProduct = await Produk.findOne({
         where: {
@@ -355,15 +415,16 @@ class AdminService extends Service {
         where: {
           productId,
           ...query,
+          ...searchByMonthOrYear,
+          ...whereActivityClause,
         },
         limit: _limit ? parseInt(_limit) : undefined,
         offset: (_page - 1) * _limit,
         distinct: true,
-        attributes: ["aktivitas", "jumlah"],
         include: [
           {
             model: Stok,
-            attributes: ["id", "createdAt", "exp_date"],
+            attributes: ["id", "exp_date"],
           },
         ],
       });
