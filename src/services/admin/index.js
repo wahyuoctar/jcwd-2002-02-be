@@ -396,8 +396,6 @@ class AdminService extends Service {
         };
       }
 
-      console.log(filterByActivity);
-
       const findProduct = await Produk.findOne({
         where: {
           id: productId,
