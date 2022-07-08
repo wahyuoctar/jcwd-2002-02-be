@@ -9,7 +9,10 @@ const DaftarTransaksi = (sequelize) => {
     is_resep: {
       type: DataTypes.BOOLEAN,
     },
-    resep_imag_url: {
+    resep_image_url: {
+      type: DataTypes.STRING,
+    },
+    nomor_resep: {
       type: DataTypes.STRING,
     },
   });
