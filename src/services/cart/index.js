@@ -23,7 +23,6 @@ class CartService extends Service {
             },
           }
         );
-        console.log(res, "update");
       } else {
         await Cart.create({
           productId,
@@ -66,6 +65,54 @@ class CartService extends Service {
         message: "Cart Found!",
         statusCode: 200,
         data: userCart,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static editCartQuantity = async (quantity, cartId, userId) => {
+    try {
+      const editCart = await Cart.update(
+        {
+          quantity,
+        },
+        {
+          where: {
+            id: cartId,
+            userId,
+          },
+        }
+      );
+
+      return this.handleSuccess({
+        message: "Item's quantity edited from cart",
+        statusCode: 201,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static deleteCart = async (cartId, userId) => {
+    try {
+      const deleteCart = await Cart.destroy({
+        where: {
+          id: cartId,
+          userId,
+        },
+      });
+      return this.handleSuccess({
+        message: "deleted!",
+        statusCode: 200,
       });
     } catch (err) {
       console.log(err);

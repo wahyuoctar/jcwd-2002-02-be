@@ -44,6 +44,49 @@ const cartController = {
       });
     }
   },
+  editCartQuantity: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { quantity } = req.body;
+      const cartId = req.params.id;
+
+      const serviceResult = await CartService.editCartQuantity(
+        quantity,
+        cartId,
+        userId
+      );
+
+      if (!serviceResult.success) throw serviceResult;
+
+      return res.status(serviceResult.statusCode).json({
+        message: serviceResult.message,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+  deleteCart: async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const cartId = req.params.id;
+
+      const serviceResult = await CartService.deleteCart(cartId, userId);
+
+      if (!serviceResult.success) throw serviceResult;
+
+      return res.status(serviceResult.statusCode).json({
+        message: serviceResult.message,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
 };
 
 module.exports = cartController;
