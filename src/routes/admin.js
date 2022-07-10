@@ -55,4 +55,10 @@ router.post("/stock/status", adminControllers.addStockStatus);
 // Input Stock
 router.post("/stock", authorizedLoginAdmin, adminControllers.addStock);
 
+// Get Product Stock History
+router.get(
+  "/stock-history/product/:productId",
+  adminControllers.getProductStockHistory
+);
+
 module.exports = router;

@@ -55,8 +55,8 @@ Cart.belongsTo(User);
 Produk.hasMany(Cart);
 Cart.belongsTo(Produk);
 
-Produk.hasMany(PurchaseOrder);
-PurchaseOrder.belongsTo(Produk);
+Stok.hasMany(PurchaseOrder);
+PurchaseOrder.belongsTo(Stok);
 
 Admin.hasMany(PurchaseOrder);
 PurchaseOrder.belongsTo(Admin);
@@ -67,11 +67,14 @@ Produk.belongsTo(KategoriProduk);
 Produk.hasMany(Stok);
 Stok.belongsTo(Produk);
 
+Produk.hasMany(MutasiStok);
+MutasiStok.belongsTo(Produk);
+
 StokStatus.hasMany(Stok);
 Stok.belongsTo(StokStatus);
 
-Produk.hasMany(MutasiStok);
-MutasiStok.belongsTo(Produk);
+Stok.hasMany(MutasiStok);
+MutasiStok.belongsTo(Stok);
 
 User.hasMany(DaftarTransaksi);
 DaftarTransaksi.belongsTo(User);
