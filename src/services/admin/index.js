@@ -8,6 +8,7 @@ const {
   StokStatus,
   MutasiStok,
   PurchaseOrder,
+  DetailTransaksi,
 } = require("../../lib/sequelize");
 const Service = require("../service");
 
@@ -443,6 +444,34 @@ class AdminService extends Service {
       console.log(err);
       return this.handleError({
         message: "Can't reach product stock server",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static addCustomOrder = async (body) => {
+    try {
+      const products = body.map((val) => {
+        return {
+          price_when_sold: val.price,
+          quantity: val.quantity,
+          transactionListId: val.transactionListId,
+          productId: val.productId,
+        };
+      });
+      const addProduct = await DetailTransaksi.bulkCreate(products, {
+        individualHooks: true,
+      });
+
+      return this.handleSuccess({
+        message: "Added Products Success!",
+        statusCode: 201,
+        data: addProduct,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't reach custom product server!",
         statusCode: 500,
       });
     }
