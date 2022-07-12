@@ -226,6 +226,32 @@ const authController = {
       });
     }
   },
+
+  loginWithGoogle: async (req, res) => {
+    try {
+      const { uid, name, email, username, image_url } = req.body;
+
+      const serviceResult = await AuthService.loginWithGoogle({
+        uid,
+        name,
+        email,
+        username,
+        image_url,
+      });
+
+      if (!serviceResult.success) throw serviceResult;
+
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
 };
 
 module.exports = authController;

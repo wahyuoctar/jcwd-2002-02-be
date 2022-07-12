@@ -49,4 +49,6 @@ router.post(
 
 router.post("/reset-password", authController.resetPassword);
 
+router.post("/login-with-google", authController.loginWithGoogle);
+
 module.exports = router;
