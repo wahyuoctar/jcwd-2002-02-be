@@ -9,6 +9,7 @@ const {
   MutasiStok,
   PurchaseOrder,
   DetailTransaksi,
+  DaftarTransaksi,
 } = require("../../lib/sequelize");
 const Service = require("../service");
 
@@ -462,6 +463,21 @@ class AdminService extends Service {
       const addProduct = await DetailTransaksi.bulkCreate(products, {
         individualHooks: true,
       });
+
+      await DaftarTransaksi.update(
+        {
+          total_price: body[0].total_price,
+          productAdded: true,
+          nomor_resep: body[0].nomor_resep,
+        },
+        {
+          where: {
+            id: body[0].transactionListId,
+          },
+        }
+      );
+
+      // TODO: update status pembayaran
 
       return this.handleSuccess({
         message: "Added Products Success!",
