@@ -4,8 +4,11 @@ const {
   StatusTransaksi,
   DetailTransaksi,
   Produk,
+  MetodePembayaran,
+  Cart,
 } = require("../../lib/sequelize");
 const { nanoid } = require("nanoid");
+const { Op } = require("sequelize");
 
 class TransactionService extends Service {
   static getAllTransaction = async (query) => {
@@ -70,6 +73,59 @@ class TransactionService extends Service {
     }
   };
 
+  static createTransaction = async (total_price, userId, cartId = []) => {
+    try {
+      const newTransaction = await DaftarTransaksi.create({
+        total_price,
+        userId,
+        is_resep: false,
+        paymentStatusId: 1,
+        resep_image_url: null,
+        nomor_resep: null,
+      });
+
+      const findCart = await Cart.findAll({
+        where: {
+          id: {
+            [Op.in]: cartId,
+          },
+        },
+        include: Produk,
+      });
+
+      const data = () => {
+        return findCart.map((val) => {
+          return {
+            transactionListId: newTransaction.id,
+            price_when_sold: val.product.harga_jual,
+            productId: val.product.id,
+            quantity: val.quantity,
+          };
+        });
+      };
+      await DetailTransaksi.bulkCreate(data(), {
+        individualHooks: true,
+      });
+      const deleteCart = await Cart.destroy({
+        where: {
+          id: cartId,
+        },
+      });
+
+      return this.handleSuccess({
+        statusCode: 200,
+        message: "Transaction created!",
+        data: newTransaction,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
   static uploadResepDokter = async (file, userId) => {
     try {
       const uploadFileDomain = process.env.UPLOAD_FILE_DOMAIN;
@@ -91,6 +147,57 @@ class TransactionService extends Service {
         statusCode: 200,
         message: "Resep uploaded successfully!",
         data: resep,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getAllPaymentMethod = async () => {
+    try {
+      const findPaymentMethod = await MetodePembayaran.findAndCountAll();
+      if (!findPaymentMethod) {
+        return this.handleError({
+          message: "No methods found!",
+          statusCode: 500,
+        });
+      }
+      return this.handleSuccess({
+        message: "Methods found",
+        statusCode: 200,
+        data: findPaymentMethod,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getPaymentMethodById = async (methodId) => {
+    try {
+      const findPaymentMethod = await MetodePembayaran.findOne({
+        where: {
+          id: methodId,
+        },
+      });
+
+      if (!findPaymentMethod) {
+        return this.handleError({
+          message: `No method with id: ${id} found!`,
+        });
+      }
+
+      return this.handleSuccess({
+        message: "Method found",
+        statusCode: 200,
+        data: findPaymentMethod,
       });
     } catch (err) {
       console.log(err);
