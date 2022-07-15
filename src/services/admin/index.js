@@ -212,6 +212,13 @@ class AdminService extends Service {
         },
       });
 
+      if (!findProducts) {
+        return this.handleError({
+          message: `Can't find Product with ID: ${id}`,
+          statusCode: 404,
+        });
+      }
+
       const editProdukImages = await Produk.update(
         {
           produk_image_url: filename,
@@ -223,12 +230,6 @@ class AdminService extends Service {
         }
       );
 
-      if (!findProducts) {
-        return this.handleError({
-          message: `Can't find Product with ID: ${id}`,
-          statusCode: 404,
-        });
-      }
       return this.handleSuccess({
         message: "Product Images Edited!",
         statusCode: 201,
