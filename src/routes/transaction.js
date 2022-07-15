@@ -41,4 +41,7 @@ router.post(
   transactionControllers.uploadProofOfPayment
 );
 
+// Fetch Transaksi dari ID
+router.get("/:transactionId", transactionControllers.getTransactionById);
+
 module.exports = router;

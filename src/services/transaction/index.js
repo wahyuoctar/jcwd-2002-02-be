@@ -40,6 +40,7 @@ class TransactionService extends Service {
           ...statusClause,
         },
         include: [
+          { model: BuktiPembayaran },
           {
             model: StatusTransaksi,
           },
@@ -74,15 +75,16 @@ class TransactionService extends Service {
     }
   };
 
-  static createTransaction = async (total_price, userId, cartId = []) => {
+  static createTransaction = async (body, cartId = [], userId) => {
     try {
       const newTransaction = await DaftarTransaksi.create({
-        total_price,
+        total_price: body.total_price,
         userId,
         is_resep: false,
         paymentStatusId: 1,
         resep_image_url: null,
         nomor_resep: null,
+        paymentMethodId: body.paymentMethodId,
       });
 
       const findCart = await Cart.findAll({
@@ -247,6 +249,49 @@ class TransactionService extends Service {
       console.log(err);
       return this.handleError({
         message: "Server for Upload Proof of Payment Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getTransactionById = async (transactionId) => {
+    try {
+      const findTransactionData = await DaftarTransaksi.findOne({
+        where: {
+          id: transactionId,
+        },
+        include: {
+          model: MetodePembayaran,
+        },
+      });
+
+      if (!findTransactionData) {
+        return this.handleError({
+          message: `Can't find transaction with ID: ${transactionId}`,
+        });
+      }
+
+      const findTransactionDetail = await DetailTransaksi.findAll({
+        where: {
+          transactionListId: transactionId,
+        },
+        include: {
+          model: Produk,
+        },
+      });
+
+      return this.handleSuccess({
+        message: "Find Transaction!",
+        data: {
+          transaksi: findTransactionData,
+          detailTransaksi: findTransactionDetail,
+        },
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Transaction Data Error!",
         statusCode: 500,
       });
     }
