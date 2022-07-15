@@ -6,6 +6,7 @@ const {
   Produk,
   MetodePembayaran,
   Cart,
+  BuktiPembayaran,
 } = require("../../lib/sequelize");
 const { nanoid } = require("nanoid");
 const { Op } = require("sequelize");
@@ -103,9 +104,11 @@ class TransactionService extends Service {
           };
         });
       };
+
       await DetailTransaksi.bulkCreate(data(), {
         individualHooks: true,
       });
+
       const deleteCart = await Cart.destroy({
         where: {
           id: cartId,
@@ -203,6 +206,47 @@ class TransactionService extends Service {
       console.log(err);
       return this.handleError({
         message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static uploadProofOfPayment = async (body, file) => {
+    try {
+      const uploadFileDomain = process.env.UPLOAD_FILE_DOMAIN;
+      const filePath = "payment";
+      const { filename } = file;
+
+      const findTransaction = await DaftarTransaksi.findOne({
+        where: {
+          id: body.transactionListId,
+        },
+      });
+
+      if (!findTransaction) {
+        return this.handleError({
+          message: `Can't find Transaction with ID: ${body.transactionListId}`,
+          statusCode: 404,
+        });
+      }
+
+      const uploadImage = await BuktiPembayaran.create({
+        bukti_transfer: `${uploadFileDomain}/${filePath}/${filename}`,
+        transactionListId: body.transactionListId,
+        total_payment: body.totalPrice,
+        paymentMethodId: body.paymentMethodId,
+        is_approved: false,
+      });
+
+      return this.handleSuccess({
+        message: "Proof of Payment Added",
+        statusCode: 201,
+        data: uploadImage,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server for Upload Proof of Payment Error!",
         statusCode: 500,
       });
     }

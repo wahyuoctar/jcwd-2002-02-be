@@ -30,4 +30,15 @@ router.post(
   transactionControllers.createTransaction
 );
 
+// Upload Bukti Pembayaran
+router.post(
+  "/upload-proof-of-payment",
+  fileUploader({
+    destinationFolder: "payment",
+    fileType: "image",
+    prefix: "PAYMENT",
+  }).single("payment_image_file"),
+  transactionControllers.uploadProofOfPayment
+);
+
 module.exports = router;
