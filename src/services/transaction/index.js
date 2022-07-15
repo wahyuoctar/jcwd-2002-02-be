@@ -260,9 +260,14 @@ class TransactionService extends Service {
         where: {
           id: transactionId,
         },
-        include: {
-          model: MetodePembayaran,
-        },
+        include: [
+          {
+            model: BuktiPembayaran,
+          },
+          {
+            model: MetodePembayaran,
+          },
+        ],
       });
 
       if (!findTransactionData) {
