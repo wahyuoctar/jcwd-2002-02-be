@@ -100,7 +100,9 @@ class TransactionService extends Service {
         return findCart.map((val) => {
           return {
             transactionListId: newTransaction.id,
-            price_when_sold: val.product.harga_jual,
+            price_when_sold:
+              val.product.harga_jual -
+              val.product.harga_jual * (val.product.diskon / 100),
             productId: val.product.id,
             quantity: val.quantity,
           };

@@ -493,6 +493,53 @@ class AdminService extends Service {
       });
     }
   };
+
+  static getRevenue = async () => {
+    try {
+      const findOutcome = await PurchaseOrder.findAll();
+
+      const outcomeResult = findOutcome.reduce(
+        (previousValue, currentValue) => {
+          return previousValue + currentValue.amount * currentValue.price;
+        },
+        0
+      );
+
+      const findIncome = await DetailTransaksi.findAll({
+        attributes: ["price_when_sold", "quantity"],
+        include: [
+          {
+            model: DaftarTransaksi,
+            attributes: ["id"],
+            where: {
+              paymentStatusId: 4,
+            },
+          },
+        ],
+      });
+
+      const incomeResult = findIncome?.reduce((previousValue, currentValue) => {
+        return (
+          previousValue + currentValue.price_when_sold * currentValue.quantity
+        );
+      }, 0);
+
+      return this.handleSuccess({
+        message: "Here we are!",
+        data: {
+          income: incomeResult,
+          outcome: outcomeResult,
+        },
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't reach revenue server!",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
 module.exports = AdminService;
