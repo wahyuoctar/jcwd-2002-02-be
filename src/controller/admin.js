@@ -224,7 +224,7 @@ const adminControllers = {
 
   getRevenue: async (req, res) => {
     try {
-      const serviceResult = await AdminService.getRevenue();
+      const serviceResult = await AdminService.getRevenue(req.query);
 
       if (!serviceResult.success) throw serviceResult;
       return res.status(serviceResult.statusCode || 201).json({

@@ -312,6 +312,7 @@ class AdminService extends Service {
         price: body.price,
         adminId,
         productId: body.productId,
+        stockId: addStock.id,
       });
 
       await MutasiStok.create({
@@ -361,9 +362,9 @@ class AdminService extends Service {
               `${filterByYear}-${moment(filterByMonth).format(
                 "MM"
               )}-01T00:00:00.000Z`,
-              `${filterByYear}-${moment(filterByMonth).format(
-                "MM"
-              )}-31T00:00:00.000Z`,
+              `${filterByYear}-${moment(filterByMonth)
+                .add(1, "month")
+                .format("MM")}-01T00:00:00.000Z`,
             ],
           },
         };
@@ -374,9 +375,9 @@ class AdminService extends Service {
               `${moment().format("YYYY")}-${moment(filterByMonth).format(
                 "MM"
               )}-01T00:00:00.000Z`,
-              `${moment().format("YYYY")}-${moment(filterByMonth).format(
-                "MM"
-              )}-31T00:00:00.000Z`,
+              `${moment().format("YYYY")}-${moment(filterByMonth)
+                .add(1, "month")
+                .format("MM")}-01T00:00:00.000Z`,
             ],
           },
         };
@@ -385,7 +386,7 @@ class AdminService extends Service {
           createdAt: {
             [Op.between]: [
               `${filterByYear}-01-01T00:00:00.000Z`,
-              `${filterByYear}-12-31T00:00:00.000Z`,
+              `${filterByYear}-12-31T23:59:59.000Z`,
             ],
           },
         };
@@ -478,8 +479,6 @@ class AdminService extends Service {
         }
       );
 
-      // TODO: update status pembayaran
-
       return this.handleSuccess({
         message: "Added Products Success!",
         statusCode: 201,
@@ -494,9 +493,57 @@ class AdminService extends Service {
     }
   };
 
-  static getRevenue = async () => {
+  static getRevenue = async (query) => {
     try {
-      const findOutcome = await PurchaseOrder.findAll();
+      const { filterByMonth, filterByYear } = query;
+
+      delete query.filterByMonth;
+      delete query.filterByYear;
+
+      let searchByMonthOrYear = {};
+
+      if (filterByMonth && filterByYear) {
+        searchByMonthOrYear = {
+          createdAt: {
+            [Op.between]: [
+              `${filterByYear}-${moment(filterByMonth).format(
+                "MM"
+              )}-01T00:00:00.000Z`,
+              `${filterByYear}-${moment(filterByMonth)
+                .add(1, "month")
+                .format("MM")}-01T00:00:00.000Z`,
+            ],
+          },
+        };
+      } else if (filterByMonth) {
+        searchByMonthOrYear = {
+          createdAt: {
+            [Op.between]: [
+              `${moment().format("YYYY")}-${moment(filterByMonth).format(
+                "MM"
+              )}-01T00:00:00.000Z`,
+              `${moment().format("YYYY")}-${moment(filterByMonth)
+                .add(1, "month")
+                .format("MM")}-01T00:00:00.000Z`,
+            ],
+          },
+        };
+      } else if (filterByYear) {
+        searchByMonthOrYear = {
+          createdAt: {
+            [Op.between]: [
+              `${filterByYear}-01-01T00:00:00.000Z`,
+              `${filterByYear}-12-31T23:59:59.000Z`,
+            ],
+          },
+        };
+      }
+
+      const findOutcome = await PurchaseOrder.findAll({
+        where: {
+          ...searchByMonthOrYear,
+        },
+      });
 
       const outcomeResult = findOutcome.reduce(
         (previousValue, currentValue) => {
@@ -510,9 +557,10 @@ class AdminService extends Service {
         include: [
           {
             model: DaftarTransaksi,
-            attributes: ["id"],
+            attributes: ["id", "createdAt"],
             where: {
               paymentStatusId: 4,
+              ...searchByMonthOrYear,
             },
           },
         ],
