@@ -7,7 +7,7 @@ const sequelize = new Sequelize({
   database: mySqlConfig.MYSQL_DB_NAME,
   port: 3306,
   dialect: "mysql",
-  logging: false,
+  logging: true,
 });
 
 // call all the models
@@ -32,6 +32,7 @@ const MetodePembayaran = require("../models/metodePembayaran")(sequelize);
 const BuktiPembayaran = require("../models/buktiPembayaran")(sequelize);
 const StatusTransaksi = require("../models/statusTransaksi")(sequelize);
 const MutasiStok = require("../models/mutasiStok")(sequelize);
+const UserProduct = require("../models/userProduct")(sequelize);
 
 // defind the relationship of the model
 Admin.hasMany(AdminLoginSession, { foreignKey: "admin_id" });
@@ -121,4 +122,5 @@ module.exports = {
   StokStatus,
   User,
   UserLoginSession,
+  UserProduct,
 };

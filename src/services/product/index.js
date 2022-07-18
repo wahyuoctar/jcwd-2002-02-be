@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Produk, KategoriProduk } = require("../../lib/sequelize");
+const { Produk, KategoriProduk, UserProduct } = require("../../lib/sequelize");
 const Service = require("../service");
 
 class ProductService extends Service {
@@ -95,6 +95,47 @@ class ProductService extends Service {
         message: "Products found",
         statusCode: 200,
         data: findProducts,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static recordUserProduct = async (user_id, produk_id) => {
+    try {
+      await UserProduct.create({
+        produk_id,
+        user_id,
+      });
+
+      return this.handleSuccess({
+        message: "Recorded!",
+        statusCode: 201,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getAllProductName = async () => {
+    try {
+      const findProduct = await Produk.findAll({
+        sort: [["nama_produk", "DESC"]],
+        attributes: ["nama_produk", "id"],
+      });
+
+      return this.handleSuccess({
+        message: "Products found",
+        statusCode: 200,
+        data: findProduct,
       });
     } catch (err) {
       console.log(err);

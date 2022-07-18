@@ -3,6 +3,7 @@ const authController = require("./auth");
 const userControllers = require("./user");
 const adminControllers = require("./admin");
 const cartController = require("./cart");
+const ReportController = require("./report");
 
 module.exports = {
   productControllers,
@@ -10,4 +11,5 @@ module.exports = {
   userControllers,
   adminControllers,
   cartController,
+  ReportController,
 };

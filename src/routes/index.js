@@ -5,6 +5,7 @@ const adminRoutes = require("./admin");
 const cartRoutes = require("./cart");
 const transactionRoutes = require("./transaction");
 const addressRoutes = require("./address");
+const reportRoutes = require("./report");
 
 module.exports = {
   authRoutes,
@@ -14,4 +15,5 @@ module.exports = {
   cartRoutes,
   transactionRoutes,
   addressRoutes,
+  reportRoutes,
 };
