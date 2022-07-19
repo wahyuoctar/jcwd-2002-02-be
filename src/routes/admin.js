@@ -61,6 +61,10 @@ router.get(
   adminControllers.getProductStockHistory
 );
 
+// Serve User custom Order
 router.post("/product/custom-order", adminControllers.addCustomOrder);
+
+// Get Revenue
+router.get("/revenue", adminControllers.getRevenue);
 
 module.exports = router;
