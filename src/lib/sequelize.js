@@ -41,6 +41,9 @@ AdminLoginSession.belongsTo(Admin, { foreignKey: "admin_id" });
 User.hasMany(UserLoginSession);
 UserLoginSession.belongsTo(User);
 
+Alamat.hasOne(DaftarTransaksi);
+DaftarTransaksi.belongsTo(Alamat);
+
 User.hasMany(AccountVerificationToken);
 AccountVerificationToken.belongsTo(User);
 
