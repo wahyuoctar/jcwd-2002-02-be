@@ -44,4 +44,6 @@ router.post(
 // Fetch Transaksi dari ID
 router.get("/:transactionId", transactionControllers.getTransactionById);
 
+router.post("/finish-transaction", transactionControllers.finishTransaction);
+
 module.exports = router;

@@ -7,7 +7,7 @@ const rajaOngkirInstance = axios.create({
 });
 
 rajaOngkirInstance.interceptors.request.use((config) => {
-  config.headers.key = "ad397ba977f8e55bf2f4cd74e92d2785";
+  config.headers.key = "8f9496163d6e0477b633f073f2d8eb62";
 
   return config;
 });

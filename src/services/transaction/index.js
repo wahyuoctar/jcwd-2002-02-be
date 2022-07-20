@@ -9,9 +9,36 @@ const {
   BuktiPembayaran,
   User,
   Alamat,
+  Stok,
 } = require("../../lib/sequelize");
 const { nanoid } = require("nanoid");
 const { Op } = require("sequelize");
+const moment = require("moment");
+
+/**
+ * === Tambah Stock ===
+ * create row in `stocks` with stockStatusId = 1 and transactionListId = null
+ * create row in `purchase_order`
+ * create row in `stock_mutations`
+ *
+ * === User checkout ===
+ * create row in `stocks` with stockStatusId = 2 and transactionListId = transactionId
+ * decrement from `stocks` where stockStatusId = 1
+ *
+ * === Admin reject ===
+ * delete from `stocks` where transactionListId = transactionId
+ * increment from `stocks` where stockStatusId = 1
+ *
+ * === Admin accept ===
+ * ubah status transaction
+ *
+ * === Admin deliver ===
+ * update `stocks` where transactionListId = transactionId SET stockStatusId = 3
+ * create row in `stock_mutations`
+ *
+ * === Transaction Done ===
+ * delete from `stocks` where transactionListId = transactionId
+ */
 
 class TransactionService extends Service {
   static getAllTransaction = async (query) => {
@@ -117,7 +144,8 @@ class TransactionService extends Service {
     userId,
     cartId = [],
     paymentMethodId,
-    addressId
+    addressId,
+    transactionId
   ) => {
     try {
       const newTransaction = await DaftarTransaksi.create({
@@ -153,6 +181,37 @@ class TransactionService extends Service {
         });
       };
 
+      findCart.forEach(async (valo) => {
+        await Stok.create({
+          stockStatusId: 2,
+          exp_date: moment().add(1, "month"),
+          transactionListId: newTransaction.id,
+          jumlah_stok: valo.quantity,
+          productId: valo.product.id,
+        });
+
+        const stok = await Stok.findAll({
+          where: {
+            productId: valo.product.id,
+            stockStatusId: 1,
+            jumlah_stok: {
+              [Op.gt]: 0,
+            },
+          },
+          order: [["exp_date", "DESC"]],
+        });
+
+        await Stok.decrement(
+          {
+            jumlah_stok: valo.quantity,
+          },
+          {
+            where: {
+              id: stok.id,
+            },
+          }
+        );
+      });
       await DetailTransaksi.bulkCreate(data(), {
         individualHooks: true,
       });
@@ -344,6 +403,43 @@ class TransactionService extends Service {
       console.log(err);
       return this.handleError({
         message: "Server Transaction Data Error!",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static finishTransaction = async (transactionId) => {
+    try {
+      const findTransaction = await DaftarTransaksi.findOne({
+        where: {
+          id: transactionId,
+        },
+      });
+      if (!findTransaction) {
+        return this.handleError({
+          message: `transaction with id ${transactionId} not found!`,
+        });
+      }
+
+      await DaftarTransaksi.update(
+        { paymentStatusId: 4 },
+        { where: { id: transactionId } }
+      );
+
+      await Stok.destroy({
+        where: {
+          transactionListId: transactionId,
+        },
+      });
+
+      return this.handleSuccess({
+        message: "Finished the transaction, thank you!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
         statusCode: 500,
       });
     }

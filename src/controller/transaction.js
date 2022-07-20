@@ -21,14 +21,16 @@ const transactionControllers = {
     try {
       const user_id = req.user.id;
 
-      const { total_price, cartId, paymentMethodId, addressId } = req.body;
+      const { total_price, cartId, paymentMethodId, addressId, transactionId } =
+        req.body;
 
       const serviceResult = await TransactionService.createTransaction(
         total_price,
         user_id,
         cartId,
         paymentMethodId,
-        addressId
+        addressId,
+        transactionId
       );
 
       if (!serviceResult.success) throw serviceResult;
@@ -131,6 +133,24 @@ const transactionControllers = {
       });
     } catch (err) {
       console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+
+  finishTransaction: async (req, res) => {
+    try {
+      const { transactionId } = req.body;
+      const serviceResult = await TransactionService.finishTransaction(
+        transactionId
+      );
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
       return res.status(err.statusCode || 500).json({
         message: err.message,
       });

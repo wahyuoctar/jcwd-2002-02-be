@@ -238,6 +238,59 @@ const adminControllers = {
       });
     }
   },
+
+  acceptTransaction: async (req, res) => {
+    try {
+      const { transactionId } = req.body;
+      const serviceResult = await AdminService.acceptTransaction(transactionId);
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+
+  declineTransaction: async (req, res) => {
+    try {
+      const { transactionId } = req.body;
+      const serviceResult = await AdminService.declineTransaction(
+        transactionId
+      );
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
+
+  askForDelivery: async (req, res) => {
+    try {
+      const { transactionId, transactionListId } = req.body;
+      const serviceResult = await AdminService.askForDelivery(
+        transactionId,
+        transactionListId
+      );
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
 };
 
 module.exports = adminControllers;

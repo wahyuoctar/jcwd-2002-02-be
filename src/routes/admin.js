@@ -67,4 +67,9 @@ router.post("/product/custom-order", adminControllers.addCustomOrder);
 // Get Revenue
 router.get("/revenue", adminControllers.getRevenue);
 
+router.post("/accept-transaction", adminControllers.acceptTransaction);
+
+router.post("/decline-transaction", adminControllers.declineTransaction);
+
+router.post("/ask-for-delivery", adminControllers.askForDelivery);
 module.exports = router;

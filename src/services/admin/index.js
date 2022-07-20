@@ -588,6 +588,151 @@ class AdminService extends Service {
       });
     }
   };
+
+  static acceptTransaction = async (transactionId) => {
+    try {
+      const findTransaction = await DaftarTransaksi.findOne({
+        where: {
+          id: transactionId,
+        },
+      });
+      if (!findTransaction) {
+        return this.handleError({
+          message: `transaction with id ${transactionId} not found!`,
+        });
+      }
+
+      await DaftarTransaksi.update(
+        { paymentStatusId: 2 },
+        { where: { id: transactionId } }
+      );
+      return this.handleSuccess({
+        message: "Transaction accepted successfully!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static declineTransaction = async (transactionId) => {
+    try {
+      const findTransaction = await DaftarTransaksi.findOne({
+        where: {
+          id: transactionId,
+        },
+      });
+      if (!findTransaction) {
+        return this.handleError({
+          message: `transaction with id ${transactionId} not found!`,
+        });
+      }
+
+      await DaftarTransaksi.update(
+        { paymentStatusId: 5 },
+        { where: { id: transactionId } }
+      );
+
+      const stok = await Stok.findAll({
+        where: {
+          transactionListId: transactionId,
+        },
+        attributes: ["jumlah_stok", "productId"],
+      });
+
+      stok.forEach(async (val) => {
+        const mainStok = await Stok.findOne({
+          where: {
+            productId: val.productId,
+          },
+        });
+        console.log(mainStok);
+        await Stok.increment(
+          {
+            jumlah_stok: val.jumlah_stok,
+          },
+          {
+            where: {
+              id: mainStok.id,
+            },
+          }
+        );
+      });
+
+      await Stok.destroy({ where: { transactionListId: transactionId } });
+
+      return this.handleSuccess({
+        message: "Transaction declined successfully!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static askForDelivery = async (transactionId) => {
+    try {
+      const findTransaction = await DaftarTransaksi.findOne({
+        where: {
+          id: transactionId,
+        },
+      });
+      if (!findTransaction) {
+        return this.handleError({
+          message: `transaction with id ${transactionId} not found!`,
+        });
+      }
+
+      await DaftarTransaksi.update(
+        { paymentStatusId: 3 },
+        { where: { id: transactionId } }
+      );
+
+      await Stok.update(
+        {
+          stockStatusId: 3,
+        },
+        {
+          where: { transactionListId: transactionId },
+        }
+      );
+      // Isi sesuai data barang yang dikirim
+
+      const data = await DetailTransaksi.findAll({
+        where: {
+          transactionListId: transactionId,
+        },
+      });
+
+      const arrayForMutation = data.map((val) => {
+        return {
+          jumlah: val.quantity,
+          productId: val.productId,
+          aktivitas: "Penjualan Barang",
+        };
+      });
+      await MutasiStok.bulkCreate(arrayForMutation, { individualHooks: true });
+
+      return this.handleSuccess({
+        message: "Courier is on the way!",
+        statusCode: 200,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Server Error",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
 module.exports = AdminService;
