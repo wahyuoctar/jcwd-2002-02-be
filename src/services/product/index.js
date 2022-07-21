@@ -1,5 +1,11 @@
-const { Op } = require("sequelize");
-const { Produk, KategoriProduk, UserProduct } = require("../../lib/sequelize");
+const { Op, Sequelize } = require("sequelize");
+const {
+  Produk,
+  KategoriProduk,
+  UserProduct,
+  Stok,
+  DetailTransaksi,
+} = require("../../lib/sequelize");
 const Service = require("../service");
 
 class ProductService extends Service {
@@ -11,6 +17,14 @@ class ProductService extends Service {
         where: {
           id: productId,
         },
+        include: [
+          {
+            model: Stok,
+            where: {
+              stockStatusId: 1,
+            },
+          },
+        ],
       });
 
       if (!getProductData) {
@@ -83,6 +97,14 @@ class ProductService extends Service {
         distinct: true,
 
         order: _sortBy ? [[_sortBy, _sortDir]] : undefined,
+        include: [
+          {
+            model: Stok,
+            where: {
+              stockStatusId: 1,
+            },
+          },
+        ],
       });
 
       if (!findProducts) {
@@ -183,7 +205,15 @@ class ProductService extends Service {
             [Op.ne]: 0,
           },
         },
-        limit: 5,
+        limit: 4,
+        include: [
+          {
+            model: Stok,
+            where: {
+              stockStatusId: 1,
+            },
+          },
+        ],
       });
 
       if (!getProductData) {
@@ -202,6 +232,51 @@ class ProductService extends Service {
       console.log(err);
       return this.handleError({
         message: "Can't Reach Product Server",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getPopularProduct = async () => {
+    try {
+      const getPopularProduct = await DetailTransaksi.findAll({
+        attributes: {
+          include: [
+            [Sequelize.fn("COUNT", Sequelize.col("productId")), "productCount"],
+          ],
+        },
+        include: [
+          {
+            model: Produk,
+            include: {
+              model: Stok,
+              where: {
+                stockStatusId: 1,
+              },
+            },
+          },
+        ],
+        order: [[Sequelize.col("productCount"), "DESC"]],
+        group: ["productId"],
+        limit: 5,
+      });
+
+      if (!getPopularProduct) {
+        return this.handleError({
+          message: `Can't Find Popular Product`,
+          statusCode: 404,
+        });
+      }
+
+      return this.handleSuccess({
+        message: "Product Found",
+        statusCode: 200,
+        data: getPopularProduct,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't Reach Popular Product Server",
         statusCode: 500,
       });
     }

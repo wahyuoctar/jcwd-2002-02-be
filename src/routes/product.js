@@ -3,6 +3,8 @@ const { authorizedLoginUser } = require("../middleware/authorizeLoginUser");
 
 const router = require("express").Router();
 
+// Get Popular Product
+router.get("/popular", productControllers.getPopularProduct);
 // Get Product With Discount
 router.get("/discount", productControllers.getProductWithDiscount);
 router.get("/product-name", productControllers.getAllProductName);

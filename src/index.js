@@ -37,6 +37,8 @@ const {
 app.use("/avatar", express.static(`${__dirname}/public/avatar`));
 app.use("/product", express.static(`${__dirname}/public/product`));
 app.use("/resep", express.static(`${__dirname}/public/resep`));
+app.use("/payment", express.static(`${__dirname}/public/payment`));
+
 app.use("/auth", authRoutes);
 app.use("/product", productRoutes);
 app.use("/user", userRoutes);
