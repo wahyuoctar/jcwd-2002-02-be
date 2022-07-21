@@ -122,6 +122,26 @@ const addressControllers = {
       });
     }
   },
+
+  changeMainAddress: async (req, res) => {
+    try {
+      const user_id = req.user.id;
+      const serviceResult = await AddressService.changeMainAddress(
+        user_id,
+        req.body.newAddressId
+      );
+      if (!serviceResult.success) throw serviceResult;
+      return res.status(serviceResult.statusCode || 200).json({
+        message: serviceResult.message,
+        result: serviceResult.data,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(err.statusCode || 500).json({
+        message: err.message,
+      });
+    }
+  },
 };
 
 module.exports = addressControllers;

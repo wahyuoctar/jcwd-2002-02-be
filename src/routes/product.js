@@ -3,6 +3,8 @@ const { authorizedLoginUser } = require("../middleware/authorizeLoginUser");
 
 const router = require("express").Router();
 
+// Get Product With Discount
+router.get("/discount", productControllers.getProductWithDiscount);
 router.get("/product-name", productControllers.getAllProductName);
 router.get("/:productId", productControllers.getProduct);
 
@@ -13,5 +15,8 @@ router.post(
   authorizedLoginUser,
   productControllers.recordUserProduct
 );
+
+// Get Product By Category
+router.get("/category/:categoryId", productControllers.getProductByCategory);
 
 module.exports = router;

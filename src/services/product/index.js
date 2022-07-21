@@ -145,6 +145,67 @@ class ProductService extends Service {
       });
     }
   };
+
+  static getProductByCategory = async (categoryId) => {
+    try {
+      const getProductData = await Produk.findAll({
+        where: {
+          productCategoryId: categoryId,
+        },
+      });
+
+      if (!getProductData) {
+        return this.handleError({
+          message: `Can't Find Product with Category ID: ${categoryId}`,
+          statusCode: 404,
+        });
+      }
+
+      return this.handleSuccess({
+        message: "Product Found",
+        statusCode: 200,
+        data: getProductData,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't Reach Product Server",
+        statusCode: 500,
+      });
+    }
+  };
+
+  static getProductWithDiscount = async () => {
+    try {
+      const getProductData = await Produk.findAll({
+        where: {
+          diskon: {
+            [Op.ne]: 0,
+          },
+        },
+        limit: 5,
+      });
+
+      if (!getProductData) {
+        return this.handleError({
+          message: `Can't Find Product with Discount`,
+          statusCode: 404,
+        });
+      }
+
+      return this.handleSuccess({
+        message: "Product Found",
+        statusCode: 200,
+        data: getProductData,
+      });
+    } catch (err) {
+      console.log(err);
+      return this.handleError({
+        message: "Can't Reach Product Server",
+        statusCode: 500,
+      });
+    }
+  };
 }
 
 module.exports = ProductService;

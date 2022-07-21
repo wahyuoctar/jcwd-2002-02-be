@@ -706,6 +706,13 @@ class AdminService extends Service {
       );
       // Isi sesuai data barang yang dikirim
 
+      const findStock = await Stok.findOne({
+        where: {
+          transactionListId: transactionId,
+          stockStatusId: 3,
+        },
+      });
+
       const data = await DetailTransaksi.findAll({
         where: {
           transactionListId: transactionId,
@@ -717,6 +724,7 @@ class AdminService extends Service {
           jumlah: val.quantity,
           productId: val.productId,
           aktivitas: "Penjualan Barang",
+          stockId: findStock.id,
         };
       });
       await MutasiStok.bulkCreate(arrayForMutation, { individualHooks: true });

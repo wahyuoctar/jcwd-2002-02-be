@@ -27,4 +27,10 @@ router.get(
 
 router.post("/cost", addressControllers.getOngkir);
 
+router.patch(
+  "/change-main-address",
+  authorizedLoginUser,
+  addressControllers.changeMainAddress
+);
+
 module.exports = router;

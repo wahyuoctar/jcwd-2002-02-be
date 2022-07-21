@@ -182,15 +182,7 @@ class TransactionService extends Service {
       };
 
       findCart.forEach(async (valo) => {
-        await Stok.create({
-          stockStatusId: 2,
-          exp_date: moment().add(1, "month"),
-          transactionListId: newTransaction.id,
-          jumlah_stok: valo.quantity,
-          productId: valo.product.id,
-        });
-
-        const stok = await Stok.findAll({
+        const stok = await Stok.findOne({
           where: {
             productId: valo.product.id,
             stockStatusId: 1,
@@ -199,6 +191,14 @@ class TransactionService extends Service {
             },
           },
           order: [["exp_date", "DESC"]],
+        });
+
+        await Stok.create({
+          stockStatusId: 2,
+          exp_date: stok.exp_date,
+          transactionListId: newTransaction.id,
+          jumlah_stok: valo.quantity,
+          productId: valo.product.id,
         });
 
         await Stok.decrement(
@@ -252,6 +252,7 @@ class TransactionService extends Service {
         paymentStatusId: 1,
         nomor_resep: `NO.RESEP#${nomorResep}`,
         addressId,
+        paymentMethodId: 1,
       });
 
       return this.handleSuccess({
@@ -343,7 +344,7 @@ class TransactionService extends Service {
         transactionListId: body.transactionListId,
         total_payment: body.totalPrice,
         paymentMethodId: body.paymentMethodId,
-        is_approved: false,
+        is_approved: true,
       });
 
       return this.handleSuccess({

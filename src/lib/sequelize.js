@@ -7,7 +7,7 @@ const sequelize = new Sequelize({
   database: mySqlConfig.MYSQL_DB_NAME,
   port: 3306,
   dialect: "mysql",
-  logging: true,
+  logging: false,
 });
 
 // call all the models
