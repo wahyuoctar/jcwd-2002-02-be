@@ -62,7 +62,7 @@ class TransactionService extends Service {
       delete query.userId;
 
       const statusClause = {};
-      const userClause = {};
+      let userClause = {};
 
       if (statusTerpilih) {
         statusClause.paymentStatusId = statusTerpilih;
@@ -70,7 +70,7 @@ class TransactionService extends Service {
 
       if (username) {
         userClause = {
-          username: { [Op.like]: `%${username}` },
+          username: { [Op.like]: `%${username}%` },
         };
 
         const findUser = await User.findOne({
@@ -88,14 +88,13 @@ class TransactionService extends Service {
         query.userId = findUser.id;
       }
       if (userId) {
-        userClause.userId = userId;
+        query.userId = userId;
       }
 
       const findTransactions = await DaftarTransaksi.findAndCountAll({
         where: {
           ...query,
           ...statusClause,
-          ...userClause,
         },
         include: [
           { model: BuktiPembayaran },
