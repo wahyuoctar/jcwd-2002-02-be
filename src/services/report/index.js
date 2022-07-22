@@ -10,7 +10,7 @@ const {
 const Service = require("../service");
 const { sequelize } = require("../../lib/sequelize");
 
-const TODAY_START = new Date().setHours(0, 0, 0, 0);
+const TODAY_START = new Date().setUTCHours(0, 0, 0, 0);
 const NOW = new Date();
 const endOfMonth = moment().endOf("month").format("YYYY-MM-DD hh:mm");
 const nextThreeMonth = moment().add(3, "months");

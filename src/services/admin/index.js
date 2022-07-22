@@ -478,6 +478,41 @@ class AdminService extends Service {
           },
         }
       );
+      // console.log(products);
+
+      products.forEach(async (valo) => {
+        const stok = await Stok.findOne({
+          where: {
+            productId: valo.productId,
+            stockStatusId: 1,
+            jumlah_stok: {
+              [Op.gt]: 0,
+            },
+          },
+          order: [["exp_date", "DESC"]],
+        });
+
+        console.log(stok);
+
+        await Stok.create({
+          stockStatusId: 2,
+          exp_date: stok.exp_date,
+          transactionListId: valo.transactionListId,
+          jumlah_stok: valo.quantity,
+          productId: valo.productId,
+        });
+
+        await Stok.decrement(
+          {
+            jumlah_stok: valo.quantity,
+          },
+          {
+            where: {
+              id: stok.id,
+            },
+          }
+        );
+      });
 
       return this.handleSuccess({
         message: "Added Products Success!",
