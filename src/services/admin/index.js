@@ -478,7 +478,6 @@ class AdminService extends Service {
           },
         }
       );
-      // console.log(products);
 
       products.forEach(async (valo) => {
         const stok = await Stok.findOne({
@@ -491,8 +490,6 @@ class AdminService extends Service {
           },
           order: [["exp_date", "DESC"]],
         });
-
-        console.log(stok);
 
         await Stok.create({
           stockStatusId: 2,
