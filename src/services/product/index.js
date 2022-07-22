@@ -205,7 +205,7 @@ class ProductService extends Service {
             [Op.ne]: 0,
           },
         },
-        limit: 4,
+        limit: 5,
         include: [
           {
             model: Stok,
@@ -248,12 +248,14 @@ class ProductService extends Service {
         include: [
           {
             model: Produk,
-            include: {
-              model: Stok,
-              where: {
-                stockStatusId: 1,
+            include: [
+              {
+                model: Stok,
+                where: {
+                  stockStatusId: 1,
+                },
               },
-            },
+            ],
           },
         ],
         order: [[Sequelize.col("productCount"), "DESC"]],
