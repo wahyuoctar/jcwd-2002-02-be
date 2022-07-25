@@ -571,8 +571,6 @@ class AuthService extends Service {
         },
       });
 
-      console.log(findOrCreateUser);
-
       await UserLoginSession.update(
         {
           is_valid: false,

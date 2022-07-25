@@ -22,7 +22,7 @@ class ReportService extends Service {
       if (stateOfDate === "Harian") {
         countNewOrder = await DaftarTransaksi.count({
           where: {
-            createdAt: {
+            updatedAt: {
               [Op.gt]: TODAY_START,
               [Op.lt]: NOW,
             },
@@ -32,7 +32,7 @@ class ReportService extends Service {
       } else if (stateOfDate === "Mingguan") {
         countNewOrder = await DaftarTransaksi.count({
           where: {
-            createdAt: {
+            updatedAt: {
               [Op.gt]: moment(TODAY_START).subtract(1, "week"),
               [Op.lt]: NOW,
             },
@@ -42,7 +42,7 @@ class ReportService extends Service {
       } else if (stateOfDate === "Bulanan") {
         countNewOrder = await DaftarTransaksi.count({
           where: {
-            createdAt: {
+            updatedAt: {
               [Op.gt]: moment(TODAY_START).subtract(1, "month"),
               [Op.lt]: NOW,
             },
