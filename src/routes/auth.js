@@ -15,7 +15,7 @@ router.post("/admin/login", authController.loginAdmin);
 
 // keep login router untuk admin
 router.get(
-  "/admin/resfresh-token",
+  "/admin/refresh-token",
   authorizedLoginAdmin,
   authController.keepLoginAdmin
 );
