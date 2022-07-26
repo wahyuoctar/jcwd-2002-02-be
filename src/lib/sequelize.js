@@ -5,6 +5,7 @@ const sequelize = new Sequelize({
   username: mySqlConfig.MYSQL_USERNAME,
   password: mySqlConfig.MYSQL_PASSWORD,
   database: mySqlConfig.MYSQL_DB_NAME,
+  host: mySqlConfig.MYSQL_HOST,
   port: 3306,
   dialect: "mysql",
   logging: false,
