@@ -42,7 +42,7 @@ app.use("/payment", express.static(`${__dirname}/public/payment`));
 app.use("/auth", authRoutes);
 app.use("/product", productRoutes);
 app.use("/user", userRoutes);
-app.use("/admins", adminRoutes);
+app.use("/admin", adminRoutes);
 app.use("/cart", cartRoutes);
 app.use("/transaction", transactionRoutes);
 app.use("/address", addressRoutes);
