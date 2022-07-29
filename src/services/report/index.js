@@ -11,8 +11,8 @@ const Service = require("../service");
 const { sequelize } = require("../../lib/sequelize");
 
 const TODAY_START = moment().startOf("day");
-const NOW = moment();
-const endOfMonth = moment().endOf("month").format("YYYY-MM-DD hh:mm");
+const NOW = moment().format("YYYY-MM-DD HH:mm");
+const endOfMonth = moment().endOf("month").format("YYYY-MM-DD HH:mm");
 const nextThreeMonth = moment().add(3, "months");
 
 class ReportService extends Service {
