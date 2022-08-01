@@ -46,8 +46,8 @@ class TransactionService extends Service {
       const {
         _limit = 100,
         _page = 1,
-        _sortBy = "",
-        _sortDir = "",
+        _sortBy = "createdAt",
+        _sortDir = "DESC",
         statusTerpilih,
         username,
         userId = undefined,

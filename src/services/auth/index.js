@@ -228,9 +228,16 @@ class AuthService extends Service {
         },
       });
 
+      if (!findUser) {
+        return this.handleError({
+          message: "Wrong Username, email or password!",
+          statusCode: 400,
+        });
+      }
+
       const comparePassword = bcrypt.compareSync(password, findUser.password);
 
-      if (!findUser || !comparePassword) {
+      if (!comparePassword) {
         return this.handleError({
           message: "Wrong Username, email or password!",
           statusCode: 400,
